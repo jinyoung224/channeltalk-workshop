@@ -926,7 +926,8 @@
   /* ===== Print ===== */
   @media print {
     body { background: #fff; }
-    .toolbar { display: none; }
+    .toolbar, .stepper, .deck-nav { display: none !important; }
+    .slide { display: block !important; animation: none !important; }
     .container { box-shadow: none; margin: 0; max-width: 100%; border-radius: 0; }
     .page { page-break-after: always; padding: 24px 28px; border-bottom: none; }
     .builder .add-branch-btn, .builder .branch-card .remove-btn { display: none; }
@@ -949,6 +950,109 @@
   /* ===== Section heading style ===== */
   h2.flow-title { font-size: 15px; font-weight: 700; margin: 18px 0 10px; color: var(--ink); }
   h2.flow-title .icon { margin-right: 4px; }
+
+  /* ===== Stepper (상단 진행 바) ===== */
+  .stepper {
+    position: sticky; z-index: 90;
+    background: #fff; border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    padding: 12px 20px 10px;
+  }
+  .stepper-track {
+    display: flex; align-items: flex-start; gap: 0;
+    max-width: 1100px; margin: 0 auto;
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .stepper-track::-webkit-scrollbar { height: 5px; }
+  .stepper-track::-webkit-scrollbar-thumb { background: #D8D8D8; border-radius: 3px; }
+  .step-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px; flex: 1 0 auto; min-width: 60px;
+    cursor: pointer; position: relative;
+    padding: 0 2px; background: transparent; border: none;
+    font-family: inherit;
+  }
+  /* connecting line between dots */
+  .step-item::before {
+    content: ''; position: absolute;
+    top: 13px; left: -50%; width: 100%; height: 2px;
+    background: var(--border); z-index: 0;
+  }
+  .step-item:first-child::before { display: none; }
+  .step-item.done::before, .step-item.active::before { background: var(--brand); }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--border);
+    color: var(--ink-light); font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 1; transition: all 0.2s;
+  }
+  .step-item.done .step-dot {
+    background: var(--brand); border-color: var(--brand); color: #fff;
+  }
+  .step-item.active .step-dot {
+    background: var(--brand); border-color: var(--brand); color: #fff;
+    box-shadow: 0 0 0 4px var(--bg-warm);
+  }
+  .step-label {
+    font-size: 10.5px; font-weight: 600; color: var(--ink-light);
+    text-align: center; line-height: 1.3; white-space: nowrap;
+    max-width: 96px; overflow: hidden; text-overflow: ellipsis;
+  }
+  .step-item.active .step-label { color: var(--brand-dark); font-weight: 700; }
+  .step-item.done .step-label { color: var(--ink-mid); }
+  .step-item .step-num {
+    display: block; font-size: 9px; letter-spacing: 0.5px;
+    color: var(--brand); font-weight: 800; margin-bottom: 1px;
+  }
+  .step-item.active .step-num { color: var(--brand-dark); }
+
+  /* ===== Slide deck ===== */
+  .deck { position: relative; overflow: hidden; }
+  .slide { display: none; }
+  .slide.active { display: block; animation: slideInRight 0.32s ease both; }
+  .deck.reverse .slide.active { animation: slideInLeft 0.32s ease both; }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(46px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-46px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ===== Bottom navigation ===== */
+  .deck-nav {
+    position: sticky; bottom: 0; z-index: 80;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(6px);
+    border-top: 1px solid var(--border);
+    padding: 12px 20px;
+  }
+  .deck-nav button {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 22px; border-radius: 8px;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
+    background: #fff; color: var(--ink);
+  }
+  .deck-nav button.next { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .deck-nav button.next:hover:not(:disabled) { background: var(--brand-dark); }
+  .deck-nav button.prev:hover:not(:disabled) { border-color: var(--brand); color: var(--brand); }
+  .deck-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .deck-nav .deck-counter {
+    font-size: 12.5px; font-weight: 700; color: var(--ink-mid);
+    min-width: 56px; text-align: center;
+  }
+  .deck-nav .deck-counter b { color: var(--brand); }
+
+  @media (max-width: 720px) {
+    .step-label { display: none; }
+    .step-item { min-width: 40px; }
+    .deck-nav button { padding: 9px 16px; font-size: 12.5px; }
+  }
 </style>
 </head>
 <body>
@@ -2031,10 +2135,140 @@ function copyRule(btn, elementId) {
   });
 }
 
+// ================= 슬라이드(스텝) 네비게이션 =================
+// 각 .page / .hero 를 슬라이드로 묶고, 상단 진행 바 + 이전·다음으로 이동
+const SLIDE_LABELS = [
+  { num: '',       title: '표지' },
+  { num: '',       title: '교육 시간표' },
+  { num: '',       title: '실습 안내' },
+  { num: 'STEP 1', title: '채널 통합' },
+  { num: 'STEP 2', title: '문의 유형' },
+  { num: 'STEP 3', title: '예시 · 커머스' },
+  { num: 'STEP 3', title: '예시 · B2B' },
+  { num: 'STEP 4', title: '흐름 설계' },
+  { num: '',       title: '완성 체크' },
+  { num: '',       title: '참고 자료' },
+  { num: '',       title: '학습 자료' },
+  { num: '',       title: '만족도' },
+  { num: '',       title: '특별 혜택' },
+];
+
+let slides = [];
+let currentSlide = 0;
+
+function buildDeck() {
+  const container = document.querySelector('.container');
+  const children = Array.from(container.children);
+  const deck = document.createElement('div');
+  deck.className = 'deck';
+
+  // hero 는 바로 뒤의 intro 와 한 슬라이드로 묶음
+  const groups = [];
+  for (let i = 0; i < children.length; i++) {
+    const el = children[i];
+    if (el.classList.contains('hero') && children[i + 1]) {
+      groups.push([el, children[i + 1]]);
+      i++;
+    } else {
+      groups.push([el]);
+    }
+  }
+  groups.forEach(group => {
+    const slide = document.createElement('div');
+    slide.className = 'slide';
+    group.forEach(node => slide.appendChild(node));
+    deck.appendChild(slide);
+  });
+  container.appendChild(deck);
+  slides = Array.from(deck.querySelectorAll('.slide'));
+  return deck;
+}
+
+function buildStepper() {
+  const stepper = document.createElement('div');
+  stepper.className = 'stepper';
+  const track = document.createElement('div');
+  track.className = 'stepper-track';
+  slides.forEach((_, i) => {
+    const meta = SLIDE_LABELS[i] || { num: '', title: (i + 1) + '쪽' };
+    const item = document.createElement('button');
+    item.className = 'step-item';
+    item.type = 'button';
+    item.onclick = () => goToSlide(i);
+    item.innerHTML =
+      '<span class="step-dot">' + (i + 1) + '</span>' +
+      '<span class="step-label">' +
+        (meta.num ? '<span class="step-num">' + meta.num + '</span>' : '') +
+        meta.title +
+      '</span>';
+    track.appendChild(item);
+  });
+  stepper.appendChild(track);
+
+  // 툴바 바로 아래에 삽입 + 툴바 높이만큼 sticky 위치 보정
+  const toolbar = document.querySelector('.toolbar');
+  toolbar.insertAdjacentElement('afterend', stepper);
+  const setTop = () => { stepper.style.top = toolbar.offsetHeight + 'px'; };
+  setTop();
+  window.addEventListener('resize', setTop);
+}
+
+function buildNav() {
+  const nav = document.createElement('div');
+  nav.className = 'deck-nav';
+  nav.innerHTML =
+    '<button class="prev" type="button" onclick="goToSlide(currentSlide-1)">‹ 이전</button>' +
+    '<span class="deck-counter"><b id="navCur">1</b> / <span id="navTot">1</span></span>' +
+    '<button class="next" type="button" onclick="goToSlide(currentSlide+1)">다음 ›</button>';
+  document.querySelector('.container').insertAdjacentElement('afterend', nav);
+  document.getElementById('navTot').textContent = slides.length;
+}
+
+function goToSlide(n) {
+  if (n < 0 || n >= slides.length || !slides.length) return;
+  const deck = document.querySelector('.deck');
+  deck.classList.toggle('reverse', n < currentSlide);
+  slides[currentSlide].classList.remove('active');
+  currentSlide = n;
+  slides[currentSlide].classList.add('active');
+
+  // 스텝바 상태 갱신
+  document.querySelectorAll('.step-item').forEach((item, i) => {
+    item.classList.toggle('active', i === currentSlide);
+    item.classList.toggle('done', i < currentSlide);
+    if (i === currentSlide) item.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  });
+
+  // 이전/다음 버튼 상태
+  const cur = document.getElementById('navCur');
+  if (cur) cur.textContent = currentSlide + 1;
+  const prevBtn = document.querySelector('.deck-nav .prev');
+  const nextBtn = document.querySelector('.deck-nav .next');
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+
+  // 새 슬라이드는 맨 위에서 시작
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function bindKeyNav() {
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+    else if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+  });
+}
+
 // ---- Init ----
 window.addEventListener('DOMContentLoaded', () => {
-  loadAll();
+  buildDeck();      // page들을 슬라이드로 재구성
+  loadAll();        // 저장값 복원 (브랜치 포함)
   bindAutoSave();
+  buildStepper();   // 상단 진행 바 생성
+  buildNav();       // 하단 이전/다음 버튼
+  bindKeyNav();     // 좌우 방향키
+  goToSlide(0);     // 첫 슬라이드 표시
 });
 </script>
 </body>
