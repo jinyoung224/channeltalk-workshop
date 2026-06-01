@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>채널톡 고객센터 기획 실습지</title>
+<style>
+  :root {
+    --brand: #572DFF;
+    --brand-dark: #3D1FBF;
+    --brand-on: #FFFFFF;
+    --coral: #FF6B5B;
+    --ink: #1A1A1A;
+    --ink-mid: #4A4A4A;
+    --ink-light: #8A8A8A;
+    --border: #E5E5E5;
+    --bg-soft: #F7F7F8;
+    --bg-warm: #EFEBFF;
+    --alf: #8B5CF6;
+    --bot: #10B981;
+    --form: #3B82F6;
+    --agent: #EF4444;
+    --time: #F59E0B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    color: var(--ink);
+    line-height: 1.55;
+    background: #F5F5F5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Toolbar ===== */
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink); color: #fff;
+    padding: 10px 24px; display: flex;
+    align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .toolbar .brand {
+    font-weight: 700; font-size: 13px; letter-spacing: 2px;
+    color: #FFFFFF;
+  }
+  .toolbar .actions { display: flex; gap: 8px; }
+  .toolbar button {
+    background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    padding: 7px 14px; font-size: 12px; border-radius: 6px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,0.2); }
+  .toolbar button.primary {
+    background: var(--brand); color: #FFFFFF; border-color: var(--brand); font-weight: 600;
+  }
+  .toolbar button.primary:hover { background: var(--brand-dark); color: #FFFFFF; }
+  .toolbar .save-status {
+    font-size: 11px; color: rgba(255,255,255,0.6); margin-left: 12px;
+  }
+  .toolbar .save-status.saved { color: var(--bot); }
+
+  /* ===== Container ===== */
+  .container {
+    max-width: none; width: 100%; margin: 0; background: #fff;
+    box-shadow: none; border-radius: 0;
+    overflow: hidden;
+  }
+
+  /* ===== Cover Page ===== */
+  .cover-page {
+    padding: 0; background: #FAFAF7;
+    display: flex; justify-content: center;
+  }
+  .cover-page svg {
+    display: block; width: 100%; max-width: 1100px; height: auto;
+  }
+
+  /* ===== Timetable ===== */
+  .timetable {
+    width: 100%; border-collapse: collapse; margin-top: 18px;
+    font-size: 13px;
+  }
+  .timetable th {
+    background: var(--ink); color: #FFFFFF;
+    padding: 12px 14px; text-align: left;
+    font-weight: 600; font-size: 11.5px; letter-spacing: 1px;
+  }
+  .timetable th:first-child { border-radius: 6px 0 0 0; width: 150px; }
+  .timetable th:nth-child(2) { width: 220px; }
+  .timetable th:last-child { border-radius: 0 6px 0 0; }
+  .timetable td {
+    padding: 14px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .timetable .tt-time {
+    font-weight: 700; color: var(--ink); font-size: 13px;
+    white-space: nowrap; letter-spacing: -0.3px;
+  }
+  .timetable .tt-time .tt-dur {
+    display: block; font-size: 11px; color: var(--ink-light); font-weight: 500;
+    margin-top: 2px;
+  }
+  .timetable .tt-name {
+    font-weight: 700; color: var(--ink); font-size: 13.5px;
+  }
+  .timetable .tt-name .tt-part-label {
+    display: block; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; color: var(--brand);
+    margin-bottom: 4px; text-transform: uppercase;
+  }
+  .timetable .tt-name .tt-part-title {
+    display: block; font-weight: 700; color: var(--ink); font-size: 13.5px;
+  }
+  .timetable .tt-desc {
+    color: var(--ink-mid); font-size: 12.5px; line-height: 1.6;
+  }
+  .timetable .tt-desc ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .timetable .tt-desc li {
+    position: relative; padding-left: 12px;
+    margin-bottom: 4px; line-height: 1.55;
+  }
+  .timetable .tt-desc li:last-child { margin-bottom: 0; }
+  .timetable .tt-desc li::before {
+    content: '·'; position: absolute; left: 2px; top: -1px;
+    color: var(--brand); font-weight: 700; font-size: 16px;
+  }
+  /* 쉬는 시간 / 점심 row */
+  .timetable tr.tt-break td {
+    background: #F4F2FF; color: var(--ink-mid);
+    font-size: 12.5px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .timetable tr.tt-break .tt-time { color: var(--ink-mid); }
+  .timetable tr.tt-break .tt-label {
+    font-weight: 600; color: var(--brand-dark); letter-spacing: 0.5px;
+  }
+  .timetable tr.tt-lunch td {
+    background: #E4DEFF;
+  }
+  .timetable tr.tt-lunch .tt-label {
+    font-weight: 700; color: var(--brand-dark);
+  }
+  /* Q&A / 클로징 special */
+  .timetable tr.tt-qa td {
+    background: #FAFAF7;
+  }
+  .timetable .tt-summary {
+    margin-top: 18px; padding: 14px 18px;
+    background: var(--bg-warm); border: 1px solid #D0C4FF; border-radius: 8px;
+    display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+  }
+  .timetable .tt-summary .ts-item {
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .timetable .tt-summary .ts-item .ts-num {
+    font-size: 18px; font-weight: 800; color: var(--brand);
+  }
+  .timetable .tt-summary .ts-item .ts-label {
+    font-size: 12px; color: var(--ink-mid);
+  }
+
+  /* ===== Reference (참고자료) ===== */
+  .ref-intro {
+    margin: 14px 0 18px; padding: 14px 16px;
+    background: var(--bg-warm); border: 1px solid #D0C4FF; border-radius: 8px;
+  }
+  .ref-path {
+    font-size: 12px; font-weight: 700; color: var(--brand-dark);
+    margin-bottom: 8px; letter-spacing: 0.3px;
+  }
+  .ref-intro p {
+    font-size: 12.5px; color: var(--ink-mid); line-height: 1.6;
+  }
+  .ref-intro p b { color: var(--ink); }
+
+  .ref-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; margin-bottom: 14px;
+  }
+  .ref-card-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .ref-num {
+    background: var(--brand); color: #fff;
+    font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    padding: 3px 9px; border-radius: 4px;
+  }
+  .ref-title {
+    font-weight: 700; font-size: 14.5px; color: var(--ink);
+  }
+  .ref-desc {
+    font-size: 12.5px; color: var(--ink-mid); line-height: 1.6;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .ref-block {
+    margin-bottom: 10px;
+  }
+  .ref-block:last-child { margin-bottom: 0; }
+  .ref-block-label {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1px; color: var(--brand);
+    background: #EFEBFF; padding: 3px 8px; border-radius: 4px;
+    margin-bottom: 6px; text-transform: uppercase;
+  }
+  .ref-block-content {
+    font-size: 12.5px; color: var(--ink); line-height: 1.7;
+    padding-left: 4px;
+  }
+  .ref-block-content ul {
+    margin: 4px 0 4px 16px; padding: 0;
+  }
+  .ref-block-content ul li { margin-bottom: 3px; }
+  .ref-block-content .quote-line {
+    color: var(--ink-mid); font-style: italic;
+    border-left: 2px solid #D0C4FF; padding-left: 10px;
+    margin: 6px 0 6px 0; font-size: 12px;
+  }
+
+  .ref-task-file {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #F4F2FF; border: 1px solid #D0C4FF; border-radius: 6px;
+    padding: 8px 12px; font-size: 12.5px; color: var(--ink); font-weight: 600;
+    text-decoration: none; margin-top: 6px;
+  }
+  .ref-task-file:hover { background: #E4DEFF; }
+  .ref-task-file .file-icon {
+    background: var(--brand); color: #fff;
+    padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 700;
+  }
+  .ref-task-file .file-size {
+    color: var(--ink-light); font-weight: 400; font-size: 11px; margin-left: 6px;
+  }
+  .ref-task-note {
+    font-size: 11.5px; color: var(--ink-light); margin-top: 8px;
+    line-height: 1.5;
+  }
+  .ref-task-step {
+    margin-top: 14px;
+  }
+  .ref-task-step:first-of-type { margin-top: 6px; }
+  .ref-task-step-label {
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px; padding-left: 2px;
+  }
+
+  /* 규칙 복사 박스 */
+  .ref-card-header {
+    justify-content: space-between;
+  }
+  .ref-card-header .header-left {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .copy-btn {
+    background: #F2F2F2; color: var(--ink-mid);
+    border: 1px solid var(--border); border-radius: 5px;
+    padding: 5px 10px; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .copy-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .copy-btn.copied { background: var(--bot); color: #fff; border-color: var(--bot); }
+  .rule-copy-text {
+    background: #FAFAFA; border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px; margin-top: 12px;
+    font-family: 'SF Mono', 'Monaco', Consolas, monospace;
+    font-size: 11.5px; line-height: 1.65; color: var(--ink);
+    white-space: pre-wrap; word-break: break-word;
+    max-height: 380px; overflow-y: auto;
+  }
+  .rule-copy-text strong {
+    color: var(--brand-dark); font-weight: 700;
+  }
+
+  .ref-source {
+    margin-top: 20px; padding: 14px 16px;
+    background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12.5px; color: var(--ink-mid); text-align: center;
+  }
+  .ref-source a {
+    color: var(--brand); font-weight: 700; text-decoration: none;
+  }
+  .ref-source a:hover { text-decoration: underline; }
+
+  /* ===== Learn (학습 자료) ===== */
+  .learn-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-top: 18px;
+  }
+  .learn-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px 20px; text-align: center;
+    transition: all 0.2s; display: flex; flex-direction: column;
+  }
+  .learn-card:hover {
+    border-color: var(--brand); transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(87, 45, 255, 0.08);
+  }
+  .learn-icon {
+    font-size: 36px; margin-bottom: 12px; line-height: 1;
+  }
+  .learn-title {
+    font-weight: 800; font-size: 16px; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .learn-subtitle {
+    font-size: 11px; font-weight: 600; color: var(--brand);
+    letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase;
+  }
+  .learn-desc {
+    font-size: 12.5px; color: var(--ink-mid); line-height: 1.7;
+    margin-bottom: 18px; flex: 1;
+  }
+  .learn-desc b { color: var(--ink); font-weight: 700; }
+  .learn-link {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 18px; background: var(--brand); color: #fff;
+    font-size: 12.5px; font-weight: 700; border-radius: 6px;
+    text-decoration: none; transition: all 0.15s;
+    align-self: center;
+  }
+  .learn-link:hover { background: var(--brand-dark); }
+
+  .learn-intro {
+    background: var(--bg-warm); border: 1px solid #D0C4FF; border-radius: 8px;
+    padding: 14px 18px; margin-top: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .learn-intro .li-icon { font-size: 22px; }
+  .learn-intro .li-text {
+    font-size: 13px; color: var(--ink); font-weight: 600;
+  }
+  .learn-intro .li-text small {
+    display: block; font-size: 11.5px; color: var(--ink-mid); font-weight: 400;
+    margin-top: 3px;
+  }
+
+  /* ===== Special Benefits (특별 혜택) ===== */
+  .benefit-hero {
+    background: var(--ink); color: #fff;
+    border-radius: 12px; padding: 28px 32px;
+    margin-top: 14px; margin-bottom: 22px;
+    text-align: center;
+  }
+  .benefit-hero .bh-tag {
+    display: inline-block; background: var(--brand); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .benefit-hero h3 {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0; line-height: 1.35;
+  }
+  .benefit-hero h3 .gift { font-size: 26px; vertical-align: middle; margin-right: 4px; }
+  .benefit-hero .bh-desc {
+    font-size: 13px; color: rgba(255,255,255,0.7);
+    margin-top: 10px;
+  }
+
+  .benefit-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .benefit-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; display: flex; flex-direction: column;
+    transition: all 0.2s;
+  }
+  .benefit-card:hover {
+    border-color: var(--brand); transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(87, 45, 255, 0.08);
+  }
+  .benefit-card .bc-icon {
+    font-size: 32px; margin-bottom: 12px; line-height: 1;
+  }
+  .benefit-card .bc-title {
+    font-weight: 800; font-size: 17px; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .benefit-card .bc-subtitle {
+    font-size: 11.5px; font-weight: 700; color: var(--brand);
+    letter-spacing: 1px; margin-bottom: 14px; text-transform: uppercase;
+  }
+  .benefit-card .bc-desc {
+    font-size: 13px; color: var(--ink-mid); line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .benefit-card .bc-features {
+    list-style: none; padding: 0; margin: 0 0 16px 0;
+  }
+  .benefit-card .bc-features li {
+    position: relative; padding-left: 18px;
+    font-size: 12.5px; color: var(--ink); margin-bottom: 7px;
+    line-height: 1.55;
+  }
+  .benefit-card .bc-features li::before {
+    content: '✓'; position: absolute; left: 0; top: 0;
+    color: var(--brand); font-weight: 800;
+  }
+  .benefit-card .bc-note {
+    background: var(--bg-warm); border-left: 3px solid var(--brand);
+    padding: 10px 12px; border-radius: 4px; margin-bottom: 16px;
+    font-size: 12px; color: var(--ink); line-height: 1.55;
+  }
+  .benefit-card .bc-note b { color: var(--brand-dark); }
+  .benefit-card .bc-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px 20px; background: var(--brand); color: #fff;
+    font-size: 13px; font-weight: 700; border-radius: 8px;
+    text-decoration: none; transition: all 0.15s;
+    margin-top: auto;
+  }
+  .benefit-card .bc-button:hover { background: var(--brand-dark); }
+  .benefit-card .bc-button.outline {
+    background: #fff; color: var(--brand); border: 1.5px solid var(--brand);
+  }
+  .benefit-card .bc-button.outline:hover {
+    background: var(--brand); color: #fff;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    background: var(--brand); padding: 36px 48px 30px;
+    position: relative;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero .label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--brand-on);
+  }
+  .hero h1 {
+    font-size: 32px; font-weight: 800; margin-top: 10px; line-height: 1.15;
+    color: var(--brand-on);
+  }
+  .hero .version {
+    position: absolute; top: 36px; right: 48px;
+    font-size: 11px; color: var(--brand-on); opacity: 0.7;
+  }
+
+  /* ===== Page sections ===== */
+  .page {
+    padding: 32px 48px; border-bottom: 1px solid var(--border);
+    max-width: 1100px; margin: 0 auto;
+  }
+  .page:last-child { border-bottom: none; }
+  .page-intro p { font-size: 14px; color: var(--ink-mid); margin-bottom: 8px; }
+  .page-intro p.highlight {
+    background: var(--bg-warm); border: 1px solid #D0C4FF; padding: 12px 16px; border-radius: 6px;
+    margin-top: 14px; color: var(--ink-mid); font-size: 13.5px;
+  }
+
+  /* ===== Author info card ===== */
+  .author-row {
+    margin-top: 22px; padding: 16px 20px;
+    background: var(--bg-soft); border-radius: 8px;
+    display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 24px;
+  }
+  .author-row label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+  .author-row input {
+    flex: 1; border: none; border-bottom: 1px solid var(--ink-light);
+    background: transparent; padding: 4px 0; font-size: 13px; font-family: inherit;
+    color: var(--ink); outline: none;
+  }
+  .author-row input:focus { border-bottom-color: var(--brand-dark); }
+
+  /* ===== Section label (orange bar + title) ===== */
+  .section-label {
+    display: flex; align-items: center; gap: 10px; margin-top: 28px; margin-bottom: 14px;
+  }
+  .section-label .bar { width: 4px; height: 22px; background: var(--brand); border-radius: 2px; }
+  .section-label.brand .bar { background: var(--brand); }
+  .section-label.time .bar { background: var(--time); }
+  .section-label h3 { font-size: 16px; font-weight: 700; color: var(--ink); }
+
+  /* ===== Steps overview ===== */
+  .steps-overview { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .step-card {
+    display: flex; align-items: center; gap: 16px;
+    border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px;
+  }
+  .step-card .num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--brand); color: var(--brand-on);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px; flex-shrink: 0;
+  }
+  .step-card .title { font-weight: 700; font-size: 14px; }
+  .step-card .desc { font-size: 12.5px; color: var(--ink-mid); margin-top: 2px; }
+
+  /* ===== Step page header ===== */
+  .step-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
+  }
+  .step-badge {
+    background: var(--ink); color: #fff; padding: 6px 16px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  }
+  .step-header h2 { font-size: 24px; font-weight: 800; color: var(--ink); }
+  .step-desc { color: var(--ink-mid); font-size: 13.5px; margin-bottom: 12px; }
+
+  /* ===== Channel checkboxes ===== */
+  .channels-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 24px; margin-top: 16px;
+  }
+  .channels-grid label {
+    display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+    cursor: pointer; user-select: none;
+  }
+  .channels-grid input[type=checkbox] {
+    width: 18px; height: 18px; accent-color: var(--brand-dark); cursor: pointer;
+  }
+  .channels-grid label.etc input[type=text] {
+    border: none; border-bottom: 1px solid var(--ink-light); background: transparent;
+    font-size: 13px; padding: 2px 4px; width: 120px; font-family: inherit; outline: none;
+  }
+
+  /* ===== Effect textarea box ===== */
+  .effect-box {
+    margin-top: 20px; padding: 18px 20px;
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .effect-box h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 10px; }
+  .effect-box textarea {
+    width: 100%; min-height: 120px; border: none; resize: vertical;
+    font-family: inherit; font-size: 13px; line-height: 1.7; color: var(--ink);
+    outline: none; padding: 4px;
+  }
+  .effect-box .example-hint {
+    background: var(--bg-soft); padding: 14px 16px; border-radius: 6px;
+    margin-bottom: 14px; font-size: 12px; color: var(--ink-light);
+  }
+  .effect-box .example-hint .hint-title {
+    font-size: 11.5px; font-weight: 700; color: var(--ink-mid);
+    margin-bottom: 8px; letter-spacing: 0.3px;
+  }
+  .effect-box .example-hint .hint-row {
+    display: flex; gap: 8px; align-items: flex-start; padding: 4px 0;
+    font-style: italic; line-height: 1.6;
+  }
+  .effect-box .example-hint .hint-row b {
+    color: var(--ink-mid); font-style: normal; font-weight: 700;
+    flex-shrink: 0; min-width: 165px;
+  }
+  .effect-box .example-hint .hint-row .hint-text { color: var(--ink-light); }
+
+  /* ===== Inquiry table ===== */
+  .inquiry-table {
+    width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px;
+  }
+  .inquiry-table th {
+    background: var(--ink); color: #fff; padding: 12px 8px; text-align: center;
+    font-weight: 600; font-size: 11.5px;
+  }
+  .inquiry-table th:first-child { border-radius: 6px 0 0 0; }
+  .inquiry-table th:last-child { border-radius: 0 6px 0 0; }
+  .inquiry-table td { border: 1px solid var(--border); padding: 0; }
+  .inquiry-table td input, .inquiry-table td textarea {
+    width: 100%; border: none; padding: 12px 8px;
+    font-family: inherit; font-size: 13px; outline: none;
+    background: transparent; text-align: center; color: var(--ink);
+  }
+  .inquiry-table td input::placeholder { color: #C8C8C8; font-style: italic; }
+  .inquiry-table td input:focus { background: #EFEBFF; }
+  .inquiry-table tr.example td input { background: var(--bg-warm); color: var(--ink-mid); font-style: italic; }
+
+  /* ===== Priority cards ===== */
+  .priority-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;
+  }
+  .priority-card {
+    background: var(--bg-soft); padding: 16px; border-radius: 8px; border: 1px solid var(--border);
+  }
+  .priority-card .rank-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .priority-card .rank-num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: var(--brand-on);
+  }
+  .priority-card .rank-label { font-weight: 700; font-size: 13px; }
+  .priority-card .field-label {
+    font-size: 11px; font-weight: 700; color: var(--ink-mid); margin-bottom: 4px; margin-top: 10px;
+  }
+  .priority-card input, .priority-card textarea {
+    width: 100%; border: none; border-bottom: 1px solid var(--border);
+    background: transparent; font-family: inherit; font-size: 12.5px; color: var(--ink);
+    padding: 5px 0; outline: none; resize: none;
+  }
+  .priority-card textarea { min-height: 70px; }
+  .priority-card input:focus, .priority-card textarea:focus { border-bottom-color: var(--brand-dark); }
+
+  /* ===== Tip box ===== */
+  .tip-box {
+    margin-top: 22px; padding: 16px 20px;
+    background: var(--bg-warm); border: 1px solid #D0C4FF; border-radius: 8px;
+  }
+  .tip-box .tip-header { font-weight: 700; font-size: 13.5px; margin-bottom: 10px; }
+  .tip-box .tip-line { font-size: 12.5px; line-height: 1.8; }
+  .tip-box .tip-line b { color: var(--ink); }
+  .tip-box .tip-line .desc { color: var(--ink-mid); }
+
+  /* ===== Legend ===== */
+  .legend {
+    display: flex; gap: 18px; padding: 12px 16px;
+    background: var(--bg-soft); border-radius: 8px; margin: 14px 0 18px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .legend-item .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .legend-item.alf .dot { background: var(--alf); }
+  .legend-item.bot .dot { background: var(--bot); }
+  .legend-item.form .dot { background: var(--form); }
+  .legend-item.agent .dot { background: var(--agent); }
+  .legend-item.time .dot { background: var(--time); }
+  .legend-item b { font-weight: 700; }
+  .legend-item span { color: var(--ink-light); font-size: 11.5px; }
+
+  /* ===== Example flow ===== */
+  .flow {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    background: #FAFAFA; padding: 24px; border-radius: 8px;
+  }
+  .flow-node {
+    background: #fff; border: 1.5px solid var(--ink); border-radius: 8px;
+    padding: 10px 18px; font-weight: 600; font-size: 13px; text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); min-width: 200px;
+    position: relative; z-index: 2;
+  }
+  .flow-node.trigger { background: var(--brand); border-color: var(--brand-dark); color: var(--brand-on); }
+  .flow-connector { width: 2px; height: 18px; background: var(--ink-mid); position: relative; z-index: 1; }
+
+  /* Tree connector: vertical stem + horizontal cross + vertical drops */
+  .flow-branches {
+    display: grid;
+    grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    padding-top: 26px;
+  }
+  .flow-branches::before {
+    /* horizontal line spanning branch centers (calc accounts for gap) */
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 2px;
+    background: var(--ink-mid);
+    left: calc((100% - (var(--n, 3) - 1) * 14px) / var(--n, 3) / 2);
+    right: calc((100% - (var(--n, 3) - 1) * 14px) / var(--n, 3) / 2);
+    z-index: 1;
+  }
+  .flow-branch {
+    display: flex; flex-direction: column; align-items: stretch;
+    position: relative;
+  }
+  .flow-branch::before {
+    /* vertical drop from horizontal line to branch label */
+    content: '';
+    position: absolute;
+    top: -26px; left: 50%;
+    width: 2px; height: 26px;
+    background: var(--ink-mid);
+    transform: translateX(-1px);
+    z-index: 1;
+  }
+  .flow-branch-label {
+    border: 1.5px solid; border-radius: 8px; padding: 8px 14px;
+    font-weight: 700; font-size: 13px; min-width: 100%; text-align: center;
+    background: #fff; position: relative; z-index: 2;
+  }
+  .flow-action {
+    margin-top: 16px; border-radius: 8px; min-width: 100%;
+    overflow: hidden; border: 1.5px solid;
+    position: relative; z-index: 2;
+  }
+  .flow-action::before {
+    /* vertical line from label to action box */
+    content: '';
+    position: absolute;
+    top: -16px; left: 50%;
+    width: 2px; height: 16px;
+    background: var(--ink-mid);
+    transform: translateX(-1px);
+    z-index: 1;
+  }
+  .flow-action-title {
+    color: #fff; padding: 8px; font-weight: 700; font-size: 12px; text-align: center;
+  }
+  .flow-action-desc {
+    padding: 10px 8px; font-size: 11.5px; color: var(--ink-mid); text-align: center;
+    background: #fff; line-height: 1.5;
+  }
+  .branch-alf .flow-branch-label,.branch-alf .flow-action { border-color: var(--alf); color: var(--alf); }
+  .branch-alf .flow-action-title { background: var(--alf); color: #fff; }
+  .branch-bot .flow-branch-label,.branch-bot .flow-action { border-color: var(--bot); color: var(--bot); }
+  .branch-bot .flow-action-title { background: var(--bot); color: #fff; }
+  .branch-form .flow-branch-label,.branch-form .flow-action { border-color: var(--form); color: var(--form); }
+  .branch-form .flow-action-title { background: var(--form); color: #fff; }
+  .branch-agent .flow-branch-label,.branch-agent .flow-action { border-color: var(--agent); color: var(--agent); }
+  .branch-agent .flow-action-title { background: var(--agent); color: #fff; }
+
+  .flow-horizontal { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .flow-arrow { color: var(--ink-light); font-size: 18px; }
+  .flow-stack { display: flex; flex-direction: column; gap: 6px; }
+
+  /* ===== Builder (Step 4) ===== */
+  .builder {
+    margin-top: 16px; background: var(--bg-soft); padding: 20px; border-radius: 8px;
+  }
+  .builder .trigger-block {
+    background: var(--brand); border: 1.5px solid var(--brand-dark);
+    border-radius: 8px; padding: 12px; text-align: center;
+    font-weight: 700; font-size: 14px; max-width: 320px; margin: 0 auto;
+    color: var(--brand-on);
+  }
+  .builder .arrow-down {
+    width: 2px; height: 20px; background: var(--ink-light); margin: 0 auto;
+  }
+  .builder .greeting-block {
+    background: #fff; border: 1.5px solid var(--ink); border-radius: 8px;
+    padding: 12px; max-width: 480px; margin: 0 auto;
+  }
+  .builder .greeting-block label { font-size: 12px; color: var(--ink-mid); font-weight: 600; }
+  .builder .greeting-block input {
+    width: 100%; border: none; border-bottom: 1px solid var(--border);
+    background: transparent; font-family: inherit; font-size: 14px; padding: 4px 0 4px 0;
+    margin-top: 6px; outline: none;
+  }
+  .builder .greeting-block input:focus { border-bottom-color: var(--brand-dark); }
+
+  .builder .branches-container {
+    margin-top: 24px;
+    position: relative;
+    padding-top: 28px;
+  }
+  .builder .branches-container::before {
+    /* vertical stem from greeting to horizontal line */
+    content: '';
+    position: absolute;
+    top: -20px; left: 50%;
+    width: 2px; height: 20px;
+    background: var(--ink-mid);
+    transform: translateX(-1px);
+  }
+  .builder .branches-grid {
+    display: grid; grid-template-columns: repeat(var(--n, 3), 1fr);
+    gap: 12px; position: relative;
+  }
+  .builder .branches-grid::before {
+    /* horizontal line spanning branch centers */
+    content: '';
+    position: absolute;
+    top: -18px;
+    height: 2px;
+    background: var(--ink-mid);
+    left: calc(100% / var(--n, 3) / 2);
+    right: calc(100% / var(--n, 3) / 2);
+  }
+  .builder .branch-card {
+    background: #fff; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 14px; position: relative;
+  }
+  .builder .branch-card::before {
+    /* vertical drop to each card */
+    content: '';
+    position: absolute;
+    top: -18px; left: 50%;
+    width: 2px; height: 18px;
+    background: var(--ink-mid);
+    transform: translateX(-1px);
+  }
+  @media (max-width: 720px) {
+    .builder .branches-grid { grid-template-columns: 1fr !important; }
+    .builder .branches-grid::before { display: none; }
+    .builder .branch-card::before { display: none; }
+  }
+  .builder .branch-card.type-alf { border-color: var(--alf); }
+  .builder .branch-card.type-bot { border-color: var(--bot); }
+  .builder .branch-card.type-form { border-color: var(--form); }
+  .builder .branch-card.type-agent { border-color: var(--agent); }
+  .builder .branch-card .branch-name {
+    width: 100%; border: none; border-bottom: 1px solid var(--border);
+    font-family: inherit; font-size: 13.5px; font-weight: 700; padding: 4px 0;
+    margin-bottom: 8px; outline: none;
+  }
+  .builder .branch-card select {
+    width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 12.5px; background: var(--bg-soft); margin-bottom: 8px;
+    cursor: pointer; outline: none;
+  }
+  .builder .branch-card textarea {
+    width: 100%; min-height: 80px; border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px; font-family: inherit; font-size: 12px; resize: vertical; outline: none;
+  }
+  .builder .branch-card .remove-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: none; color: var(--ink-light); cursor: pointer;
+    font-size: 16px; padding: 4px 8px;
+  }
+  .builder .branch-card .remove-btn:hover { color: var(--agent); }
+  .builder .add-branch-btn {
+    display: block; margin: 16px auto 0; padding: 10px 20px;
+    border: 1.5px dashed var(--ink-light); background: transparent;
+    border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px;
+    color: var(--ink-mid); transition: all 0.15s;
+  }
+  .builder .add-branch-btn:hover { border-color: var(--brand-dark); color: var(--brand-dark); background: #fff; }
+
+  /* ===== Hours config ===== */
+  .hours-config {
+    margin-top: 24px; background: #fff; padding: 16px; border-radius: 8px;
+    border: 1.5px solid var(--time);
+  }
+  .hours-config .hc-row {
+    display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center;
+    margin-bottom: 12px;
+  }
+  .hours-config .hc-row:last-child { margin-bottom: 0; }
+  .hours-config label { font-size: 12.5px; font-weight: 600; }
+  .hours-config input[type=time], .hours-config select, .hours-config input[type=text] {
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 12.5px; outline: none;
+  }
+  .hours-config .time-range { display: flex; align-items: center; gap: 8px; }
+
+  /* ===== Self-check ===== */
+  .self-check {
+    margin-top: 20px; background: var(--bg-soft); padding: 16px 20px; border-radius: 8px;
+  }
+  .self-check h4 { font-size: 13.5px; margin-bottom: 10px; }
+  .self-check label {
+    display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px;
+    margin-bottom: 8px; cursor: pointer;
+  }
+  .self-check input { margin-top: 3px; accent-color: var(--brand-dark); }
+
+  /* ===== Final checklist (Step 6) - Spreadsheet style ===== */
+  .checklist-intro {
+    font-size: 13px; color: var(--ink-mid); margin-bottom: 14px;
+  }
+  .checklist-category {
+    margin-bottom: 18px; border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; background: #fff;
+  }
+  .cat-header {
+    background: var(--bg-soft); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .cat-title {
+    font-weight: 700; font-size: 14px; color: var(--ink);
+  }
+  .cat-path {
+    font-size: 11.5px; color: var(--ink-light); font-family: inherit;
+  }
+  .cat-items { display: flex; flex-direction: column; }
+  .cat-item {
+    display: grid;
+    grid-template-columns: 28px 130px 1fr 80px;
+    gap: 14px; align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .cat-item:last-child { border-bottom: none; }
+  .cat-item:hover { background: #F5F2FF; }
+  .cat-item input[type=checkbox] {
+    width: 18px; height: 18px; accent-color: var(--brand-dark); cursor: pointer;
+  }
+  .cat-item .item-name {
+    font-weight: 600; font-size: 13px; color: var(--ink);
+  }
+  .cat-item .item-desc {
+    font-size: 12px; color: var(--ink-mid); line-height: 1.55;
+  }
+  .cat-item .guide-link-sm {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 5px 10px; border-radius: 5px;
+    background: #F2F2F2; color: var(--ink-mid);
+    font-size: 11.5px; font-weight: 600; text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .cat-item .guide-link-sm:hover {
+    background: var(--ink); color: #FFFFFF; border-color: var(--ink);
+  }
+  .cat-item .guide-empty {
+    color: var(--ink-light); font-size: 11px; text-align: center;
+  }
+  @media (max-width: 720px) {
+    .cat-item { grid-template-columns: 28px 1fr; row-gap: 4px; }
+    .cat-item .item-desc { grid-column: 2; font-size: 11.5px; }
+    .cat-item .guide-link-sm, .cat-item .guide-empty { grid-column: 2; justify-self: start; }
+  }
+
+  /* ===== Next steps ===== */
+  .next-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px;
+  }
+  .next-step {
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .next-step .num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; margin: 0 auto 10px; font-size: 14px; color: var(--brand-on);
+  }
+  .next-step .title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .next-step .desc { font-size: 11.5px; color: var(--ink-mid); line-height: 1.6; }
+
+  /* ===== Closing message ===== */
+  .closing {
+    background: #E4DEFF; border: 1px solid #D0C4FF;
+    border-radius: 12px; padding: 20px 24px; margin-top: 18px;
+    color: var(--ink);
+  }
+  .closing h3 { font-size: 18px; font-weight: 800; margin: 4px 0 10px; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+  .closing h3 .emoji { font-size: 26px; line-height: 1; }
+  .closing p { font-size: 13px; line-height: 1.7; color: var(--ink-mid); }
+  .closing p b { color: var(--ink); }
+
+  /* ===== Print ===== */
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .container { box-shadow: none; margin: 0; max-width: 100%; border-radius: 0; }
+    .page { page-break-after: always; padding: 24px 28px; border-bottom: none; }
+    .builder .add-branch-btn, .builder .branch-card .remove-btn { display: none; }
+    .channels-grid input[type=checkbox]:not(:checked) { opacity: 0.3; }
+    /* Show input values clearly */
+    input, textarea, select { color: var(--ink) !important; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 720px) {
+    .author-row { grid-template-columns: 1fr; gap: 12px; }
+    .channels-grid, .priority-cards, .next-steps { grid-template-columns: 1fr; }
+    .builder .branches-grid { grid-template-columns: 1fr; }
+    .hero { padding: 24px; }
+    .hero h1 { font-size: 24px; }
+    .page { padding: 20px 24px; }
+    .toolbar { flex-direction: column; gap: 8px; padding: 12px; }
+  }
+
+  /* ===== Section heading style ===== */
+  h2.flow-title { font-size: 15px; font-weight: 700; margin: 18px 0 10px; color: var(--ink); }
+  h2.flow-title .icon { margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div>
+    <span class="brand">CHANNEL TALK WORKSHOP</span>
+    <span class="save-status" id="saveStatus">자동 저장됨 ✓</span>
+  </div>
+  <div class="actions">
+    <button onclick="printPage()">🖨️ 인쇄 / PDF</button>
+    <button onclick="exportJSON()">📥 JSON 내보내기</button>
+    <button onclick="importJSON()">📤 불러오기</button>
+    <button class="primary" onclick="resetAll()">🔄 초기화</button>
+  </div>
+</div>
+
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<div class="container">
+
+<!-- ============ COVER PAGE ============ -->
+<div class="page cover-page">
+<svg viewBox="0 0 595 842" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Channel Talk Onboarding Workshop 커버">
+<title>CHANNEL TALK ONBOARDING WORKSHOP</title>
+<desc>채널톡 신규 도입 고객 온보딩 워크숍 표지</desc>
+<rect width="595" height="842" fill="#FAFAF7"/>
+<rect x="0" y="0" width="595" height="420" fill="#572DFF"/>
+<text x="50" y="190" font-family="Inter, -apple-system, sans-serif" font-size="50" font-weight="800" letter-spacing="-0.5" fill="#FFFFFF">CHANNEL TALK</text>
+<text x="50" y="248" font-family="Inter, -apple-system, sans-serif" font-size="50" font-weight="800" letter-spacing="-0.5" fill="#FFFFFF">ONBOARDING</text>
+<text x="50" y="306" font-family="Inter, -apple-system, sans-serif" font-size="50" font-weight="800" letter-spacing="-0.5" fill="#FFFFFF">WORKSHOP</text>
+<rect x="50" y="330" width="80" height="3" fill="#FFFFFF" opacity="0.8"/>
+<text x="50" y="500" font-family="-apple-system, 'Apple SD Gothic Neo', 'Pretendard', sans-serif" font-size="20" font-weight="700" fill="#1A1A1A">목차</text>
+<rect x="50" y="514" width="40" height="2" fill="#1A1A1A"/>
+<g font-family="-apple-system, 'Apple SD Gothic Neo', 'Pretendard', sans-serif">
+<text x="50" y="560" font-size="14" font-weight="700" fill="#572DFF">01</text>
+<text x="90" y="560" font-size="15" font-weight="600" fill="#1A1A1A">교육 시간표</text>
+<line x1="50" y1="578" x2="545" y2="578" stroke="#E5E5E5" stroke-width="0.5"/>
+<text x="50" y="608" font-size="14" font-weight="700" fill="#572DFF">02</text>
+<text x="90" y="608" font-size="15" font-weight="600" fill="#1A1A1A">고객센터 기획 실습</text>
+<line x1="50" y1="626" x2="545" y2="626" stroke="#E5E5E5" stroke-width="0.5"/>
+<text x="50" y="656" font-size="14" font-weight="700" fill="#572DFF">03</text>
+<text x="90" y="656" font-size="15" font-weight="600" fill="#1A1A1A">참고 자료</text>
+<text x="160" y="657" font-size="12" font-weight="400" fill="#8A8A8A">규칙 · 태스크 예시</text>
+<line x1="50" y1="674" x2="545" y2="674" stroke="#E5E5E5" stroke-width="0.5"/>
+<text x="50" y="704" font-size="14" font-weight="700" fill="#572DFF">04</text>
+<text x="90" y="704" font-size="15" font-weight="600" fill="#1A1A1A">학습 자료</text>
+<line x1="50" y1="722" x2="545" y2="722" stroke="#E5E5E5" stroke-width="0.5"/>
+<text x="50" y="752" font-size="14" font-weight="700" fill="#572DFF">05</text>
+<text x="90" y="752" font-size="15" font-weight="600" fill="#1A1A1A">특별 혜택</text>
+</g>
+</svg>
+</div>
+
+<!-- ============ TIMETABLE PAGE ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">SCHEDULE</div><h2>교육 타임테이블</h2></div>
+
+  <table class="timetable" style="margin-top:20px;">
+    <thead>
+      <tr>
+        <th>TIME</th>
+        <th>SESSION</th>
+        <th>주요 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tt-time">10:00 - 10:10<span class="tt-dur">10분</span></td>
+        <td class="tt-name">오프닝</td>
+        <td class="tt-desc">
+          <ul>
+            <li>인사 & 교육자 소개</li>
+            <li>교육 목표 & 목차 소개</li>
+            <li>교육 참여 팀 소개</li>
+            <li>채널톡 소개</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td class="tt-time">10:10 - 11:00<span class="tt-dur">50분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 1</span>
+          <span class="tt-part-title">채널 설정</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>채널 설정</li>
+            <li>팀챗 / 수신함</li>
+            <li>고객 연락처</li>
+            <li>실습 설명 + 고객센터 기획 실습</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr class="tt-break">
+        <td class="tt-time">11:00 - 11:10</td>
+        <td class="tt-label" colspan="2">☕ 쉬는 시간 (10분)</td>
+      </tr>
+
+      <tr>
+        <td class="tt-time">11:10 - 12:00<span class="tt-dur">50분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 2</span>
+          <span class="tt-part-title">ALF</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>ALF 소개</li>
+            <li>지식 개념 설명</li>
+            <li>지식 실습</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr class="tt-lunch">
+        <td class="tt-time">12:00 - 13:00</td>
+        <td class="tt-label" colspan="2">🍱 점심 시간 (60분)</td>
+      </tr>
+
+      <tr>
+        <td class="tt-time">13:00 - 14:10<span class="tt-dur">70분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 2</span>
+          <span class="tt-part-title">ALF</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>지식 작성 Tip</li>
+            <li>규칙 개념 설명 + 규칙 실습</li>
+            <li>배포 설정 + ALF 통계</li>
+            <li>태스크 개념 + 태스크 예시</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr class="tt-break">
+        <td class="tt-time">14:10 - 14:20</td>
+        <td class="tt-label" colspan="2">☕ 쉬는 시간 (10분)</td>
+      </tr>
+
+      <tr>
+        <td class="tt-time">14:20 - 15:30<span class="tt-dur">70분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 3</span>
+          <span class="tt-part-title">워크플로우</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>워크플로우 개념 + 설정 방법</li>
+            <li>챗봇 워크플로우</li>
+            <li>자동화 규칙 워크플로우 3개</li>
+            <li>워크플로우 통계</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr class="tt-break">
+        <td class="tt-time">15:30 - 15:40</td>
+        <td class="tt-label" colspan="2">☕ 쉬는 시간 (10분)</td>
+      </tr>
+
+      <tr>
+        <td class="tt-time">15:40 - 16:15<span class="tt-dur">35분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 3</span>
+          <span class="tt-part-title">미트</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>미트</li>
+            <li>IVR 워크플로우</li>
+            <li>보이스 알프</li>
+            <li>실습 (IVR 또는 ALF/챗봇 워크플로우 보완)</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="tt-time">16:15 - 17:00<span class="tt-dur">45분</span></td>
+        <td class="tt-name">
+          <span class="tt-part-label">Part 4</span>
+          <span class="tt-part-title">분석, 마케팅</span>
+        </td>
+        <td class="tt-desc">
+          <ul>
+            <li>분석 (자동배정, 오퍼레이터 상태)</li>
+            <li>마케팅</li>
+            <li>클로징 ㆍ 만족도 조사 + 1:1 컨설팅 소개</li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr class="tt-qa">
+        <td class="tt-time">17:00 - 17:30<span class="tt-dur">30분</span></td>
+        <td class="tt-name">Q&amp;A</td>
+        <td class="tt-desc">자율 참여 ㆍ 궁금한 점 자유롭게 질문</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="version">V.1</div>
+  <div class="label">CHANNEL TALK ONBOARDING WORKSHOP</div>
+  <h1>채널톡으로 고객 센터 기획하기</h1>
+</div>
+
+<!-- ============ INTRO PAGE ============ -->
+<div class="page page-intro">
+  <p><b>채널톡 ALF와 챗봇 워크플로우를 세팅하기 전에, 우리 서비스와 고객에게 꼭 맞는 응대 흐름을 먼저 기획해요.</b></p>
+  <p class="highlight">'이런 문의는 ALF가, 이런 흐름은 챗봇 워크플로우가' — 큰 그림이 그려져 있으면 각 기능을 <b>어디에, 어떻게</b> 쓸지 한눈에 보이고 세팅 작업도 손쉽게 완성할 수 있어요. 본격 세팅 전, 우리 팀의 응대 흐름을 함께 그려봅시다.</p>
+
+  <div class="author-row">
+    <label>회사명 <input type="text" data-key="company" placeholder="우리 회사 이름"></label>
+    <label>작성자 <input type="text" data-key="author" placeholder="이름"></label>
+    <label>작성일 <input type="date" data-key="date"></label>
+  </div>
+
+  <div class="section-label"><div class="bar"></div><h3>🎯 실습 안내 · 4단계로 완성하는 채널톡 기획</h3></div>
+  <div class="steps-overview">
+    <div class="step-card"><div class="num">1</div><div><div class="title">상담 채널 통합</div><div class="desc">흩어진 상담 채널을 채널톡으로 통합해요.</div></div></div>
+    <div class="step-card"><div class="num">2</div><div><div class="title">주요 문의 유형 선정</div><div class="desc">가장 효율화하고 싶은 문의 유형 3~5개를 선정해요.</div></div></div>
+    <div class="step-card"><div class="num">3</div><div><div class="title">상담 흐름 예시 살펴보기</div><div class="desc">업종별·운영 시간대별 예시로 우리에게 맞는 패턴을 찾아봐요.</div></div></div>
+    <div class="step-card"><div class="num">4</div><div><div class="title">우리 팀의 상담 흐름 설계하기</div><div class="desc">직접 상담 플로우를 그리며 분기마다 ALF·챗봇·입력폼을 매칭해봐요.</div></div></div>
+  </div>
+</div>
+
+<!-- ============ STEP 1 ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">STEP 1</div><h2>상담 채널 통합</h2></div>
+  <div class="step-desc">현재 운영 중이고, 채널톡으로 통합하고자 하는 상담 채널을 체크해 보세요.</div>
+
+  <div class="channels-grid">
+    <label><input type="checkbox" data-key="ch_kakao"> 카카오톡</label>
+    <label><input type="checkbox" data-key="ch_insta"> 인스타그램 DM</label>
+    <label><input type="checkbox" data-key="ch_navertalk"> 네이버 톡톡</label>
+    <label><input type="checkbox" data-key="ch_phone"> 전화</label>
+    <label><input type="checkbox" data-key="ch_email"> 이메일</label>
+    <label><input type="checkbox" data-key="ch_line"> 라인/위챗</label>
+    <label><input type="checkbox" data-key="ch_board"> 게시판</label>
+    <label><input type="checkbox" data-key="ch_zigcoupang"> 지그재그/쿠팡</label>
+    <label class="etc"><input type="checkbox" data-key="ch_etc"> 기타 <input type="text" data-key="ch_etc_text" placeholder="채널명"></label>
+  </div>
+
+  <div class="effect-box">
+    <h4>📝 상담 채널 통합으로 기대하는 효과</h4>
+    <div class="example-hint">
+      <div class="hint-title">💡 이런 효과를 떠올려보세요</div>
+      <div class="hint-row">
+        <b>응대 효율 ㆍ 시간/리소스 절감</b>
+        <span class="hint-text">카톡·인스타·이메일을 각각 확인하던 시간 → 채널톡 한 화면에서 일괄 응대</span>
+      </div>
+      <div class="hint-row">
+        <b>데이터·운영 인사이트</b>
+        <span class="hint-text">상담 태그 통계로 자주 묻는 문의 TOP5 파악 → FAQ·상세페이지 보완</span>
+      </div>
+      <div class="hint-row">
+        <b>고객 경험 개선</b>
+        <span class="hint-text">고객의 과거 문의 내역을 한 곳에서 확인하여 안내 가능</span>
+      </div>
+    </div>
+    <textarea data-key="effects" placeholder="우리 팀이 채널톡으로 통합하면 어떤 변화가 생길지 적어 보세요."></textarea>
+  </div>
+</div>
+
+<!-- ============ STEP 2 ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">STEP 2</div><h2>주요 문의 유형 정리</h2></div>
+  <div class="step-desc">우리 서비스에서 자주 받는 문의를 작성하고, 그 중 가장 효율화하고 싶은 문의 3~5개를 선정해 주세요.</div>
+
+  <div class="section-label"><div class="bar"></div><h3>💬 우리 팀이 받는 문의 유형 적어보기</h3></div>
+  <table class="inquiry-table">
+    <thead>
+      <tr>
+        <th style="width:50px">No.</th>
+        <th>문의 유형</th>
+        <th style="width:110px">월 문의 건수</th>
+        <th style="width:90px">응대 난이도<br>(상/중/하)</th>
+        <th style="width:90px">효율화<br>우선순위 ★</th>
+        <th style="width:120px">자동화<br>가능 여부</th>
+      </tr>
+    </thead>
+    <tbody id="inquiryTbody">
+      <tr class="example">
+        <td><input type="text" value="예시" disabled></td>
+        <td><input type="text" value="배송 조회 문의" disabled></td>
+        <td><input type="text" value="월 200건" disabled></td>
+        <td><input type="text" value="하" disabled></td>
+        <td><input type="text" value="1순위" disabled></td>
+        <td><input type="text" value="ALF" disabled></td>
+      </tr>
+      <!-- 빈 행 6개 -->
+    </tbody>
+  </table>
+
+  <div class="section-label brand"><div class="bar"></div><h3>🏆 효율화 우선 순위 · 채널톡으로 가장 먼저 자동화할 문의 3개</h3></div>
+  <div class="priority-cards">
+    <div class="priority-card">
+      <div class="rank-header"><div class="rank-num">1</div><div class="rank-label">순위</div></div>
+      <div class="field-label">문의 유형</div>
+      <input type="text" data-key="p1_type" placeholder="예: 배송 조회">
+      <div class="field-label">처리에 필요한 정보</div>
+      <textarea data-key="p1_info" placeholder="예: 주문번호, 수령인 이름"></textarea>
+    </div>
+    <div class="priority-card">
+      <div class="rank-header"><div class="rank-num">2</div><div class="rank-label">순위</div></div>
+      <div class="field-label">문의 유형</div>
+      <input type="text" data-key="p2_type">
+      <div class="field-label">처리에 필요한 정보</div>
+      <textarea data-key="p2_info"></textarea>
+    </div>
+    <div class="priority-card">
+      <div class="rank-header"><div class="rank-num">3</div><div class="rank-label">순위</div></div>
+      <div class="field-label">문의 유형</div>
+      <input type="text" data-key="p3_type">
+      <div class="field-label">처리에 필요한 정보</div>
+      <textarea data-key="p3_info"></textarea>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-header">💡 Tip</div>
+    <div class="tip-line"><b>ALF가 잘하는 문의:</b> <span class="desc">FAQ형 반복 문의, 정책/이용 안내, 상품 정보 조회</span></div>
+    <div class="tip-line"><b>챗봇이 잘하는 문의:</b> <span class="desc">정답이 정해진 안내, 단계별 절차 안내</span></div>
+    <div class="tip-line"><b>입력폼이 적합한 문의:</b> <span class="desc">주문번호·사진 등 정보 수집이 필요한 문의 (AS, 환불 등)</span></div>
+    <div class="tip-line"><b>상담원 연결이 필요한 문의:</b> <span class="desc">결제·환불 등 민감한 정보 처리, 컴플레인·VIP 응대처럼 휴먼 터치가 필요한 문의</span></div>
+  </div>
+</div>
+
+<!-- ============ STEP 3 - 커머스 예시 ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">STEP 3</div><h2>예시로 상담 흐름 익히기 · 커머스</h2></div>
+  <div class="step-desc">커머스(쇼핑몰)에서 자주 발생하는 문의를 ALF · 챗봇 · 입력폼으로 분기 처리하는 예시입니다.</div>
+
+  <div class="legend">
+    <div class="legend-item alf"><div class="dot"></div><b>🤖 ALF</b> <span>AI 응대</span></div>
+    <div class="legend-item bot"><div class="dot"></div><b>💬 챗봇</b> <span>자동 안내</span></div>
+    <div class="legend-item form"><div class="dot"></div><b>📝 입력폼</b> <span>정보 수집</span></div>
+    <div class="legend-item agent"><div class="dot"></div><b>👤 상담원</b> <span>팀 배정</span></div>
+    <div class="legend-item time"><div class="dot"></div><b>⏰ 운영시간</b> <span>시간 분기</span></div>
+  </div>
+
+  <div class="section-label"><div class="bar"></div><h3>🛍️ 커머스 예시 · 상품/교환/AS 문의 효율화</h3></div>
+  <div class="flow">
+    <div class="flow-node trigger">🚀 채널톡 버튼 클릭</div>
+    <div class="flow-connector"></div>
+    <div class="flow-node">💬 인사말<br><small style="font-weight:400;color:var(--ink-mid);">‘어떤 도움이 필요하신가요?’</small></div>
+    <div class="flow-connector"></div>
+    <div class="flow-branches" style="--n: 3;">
+      <div class="flow-branch branch-alf">
+        <div class="flow-branch-label">상품 문의</div>
+        <div class="flow-action">
+          <div class="flow-action-title">🤖 ALF가 응대</div>
+          <div class="flow-action-desc">상품 스펙·재고·배송<br>상품 단순 문의는 ALF가<br>학습한 정보로 자동 답변</div>
+        </div>
+      </div>
+      <div class="flow-branch branch-bot">
+        <div class="flow-branch-label">교환 문의</div>
+        <div class="flow-action">
+          <div class="flow-action-title">💬 챗봇이 자동 안내</div>
+          <div class="flow-action-desc">교환 정책·기간·조건을<br>응답 버튼+메시지로<br>단계별 자동 안내</div>
+        </div>
+      </div>
+      <div class="flow-branch branch-form">
+        <div class="flow-branch-label">AS 문의</div>
+        <div class="flow-action">
+          <div class="flow-action-title">📝 폼 접수 + 상담원</div>
+          <div class="flow-action-desc">주문번호·사진·증상을<br>입력폼으로 수집 후<br>AS팀에 자동 배정</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box" style="margin-top:18px;">
+    <div class="tip-header">📌 이 흐름의 핵심</div>
+    <div class="tip-line">① 반복 FAQ형 ‘상품 문의’ → ALF로 24시간 즉답 (응대량 감소)</div>
+    <div class="tip-line">② 정책이 명확한 ‘교환 문의’ → 챗봇으로 단계별 안내 (휴먼리소스 절감)</div>
+    <div class="tip-line">③ 정보 수집이 필요한 ‘AS 문의’ → 입력폼으로 사전 수집 → 상담원이 빠르게 처리</div>
+  </div>
+</div>
+
+<!-- ============ STEP 3 - B2B + 운영시간 ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">STEP 3</div><h2>예시로 상담 흐름 익히기 · B2B SaaS / 운영시간</h2></div>
+  <div class="step-desc">B2B SaaS는 도입 단계·이용 단계·피드백처럼 고객 여정에 따라 분기하면 효율적이에요.</div>
+
+  <div class="legend">
+    <div class="legend-item alf"><div class="dot"></div><b>🤖 ALF</b> <span>AI 응대</span></div>
+    <div class="legend-item bot"><div class="dot"></div><b>💬 챗봇</b> <span>자동 안내</span></div>
+    <div class="legend-item form"><div class="dot"></div><b>📝 입력폼</b> <span>정보 수집</span></div>
+    <div class="legend-item agent"><div class="dot"></div><b>👤 상담원</b> <span>팀 배정</span></div>
+    <div class="legend-item time"><div class="dot"></div><b>⏰ 운영시간</b> <span>시간 분기</span></div>
+  </div>
+
+  <div class="section-label"><div class="bar"></div><h3>🧩 B2B SaaS 예시 · 도입/소개/이용/피드백 분기</h3></div>
+  <div class="flow">
+    <div class="flow-node trigger">🚀 채널톡 버튼 클릭</div>
+    <div class="flow-connector"></div>
+    <div class="flow-node">💬 인사말 + 응답 버튼</div>
+    <div class="flow-connector"></div>
+    <div class="flow-branches" style="--n: 4;">
+      <div class="flow-branch branch-form">
+        <div class="flow-branch-label">도입 상담</div>
+        <div class="flow-action">
+          <div class="flow-action-title">📝 폼 + 영업팀</div>
+          <div class="flow-action-desc">회사명·규모·도입 시기<br>사전 수집 후 SE팀 배정</div>
+        </div>
+      </div>
+      <div class="flow-branch branch-bot">
+        <div class="flow-branch-label">서비스 소개</div>
+        <div class="flow-action">
+          <div class="flow-action-title">💬 챗봇 자동 안내</div>
+          <div class="flow-action-desc">기능 소개 + 가격 정책 +<br>도입 사례 응답 버튼 안내</div>
+        </div>
+      </div>
+      <div class="flow-branch branch-alf">
+        <div class="flow-branch-label">이용 중 문의</div>
+        <div class="flow-action">
+          <div class="flow-action-title">🤖 ALF + 상담원</div>
+          <div class="flow-action-desc">사용 가이드·FAQ는 ALF가<br>답변하고 복잡 문의만 에스컬</div>
+        </div>
+      </div>
+      <div class="flow-branch branch-agent">
+        <div class="flow-branch-label">피드백 / 제안</div>
+        <div class="flow-action">
+          <div class="flow-action-title">📝 폼 + 태그 분류</div>
+          <div class="flow-action-desc">개선 요청·버그 신고를<br>태그별로 자동 분류해 PM에게</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label time"><div class="bar"></div><h3>⏰ 운영시간 분기 · 응대 시간대에 따라 자동 전환</h3></div>
+  <div class="flow">
+    <div class="flow-horizontal">
+      <div class="flow-node" style="background:var(--bg-soft);">고객 문의 인입</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="background:var(--time);color:#fff;border-color:var(--time);">⏰ 운영시간 체크</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-stack">
+        <div class="flow-node" style="border-color:var(--agent);color:var(--agent);min-width:240px;">
+          👤 상담원 연결 <small style="color:var(--ink-light);font-weight:400;margin-left:8px;">평일 10:00~18:00</small>
+        </div>
+        <div class="flow-node" style="border-color:var(--alf);color:var(--alf);min-width:240px;">
+          🤖 ALF 자동 응대 <small style="color:var(--ink-light);font-weight:400;margin-left:8px;">야간·주말·휴일</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-header">📌 이 흐름의 핵심</div>
+    <div class="tip-line">① 고객 여정(도입 → 이용 → 피드백)에 따라 응대 채널을 분리하면 팀별 R&R이 명확해져요.</div>
+    <div class="tip-line">② ALF는 ‘이용 중 문의’처럼 정답이 있는 영역, 입력폼은 ‘도입·피드백’처럼 정보 수집이 핵심인 영역에 강해요.</div>
+    <div class="tip-line">③ 운영시간 분기로 야간·주말 응대 공백을 ALF가 채워주면 상담원 만족도와 고객 응답률이 동시에 올라가요.</div>
+  </div>
+</div>
+
+<!-- ============ STEP 4 - Builder ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">STEP 4</div><h2>우리 팀 상담 흐름 직접 설계하기</h2></div>
+  <div class="step-desc">앞에서 정리한 '우선순위 문의 3개'를 떠올리며, 우리 서비스만의 상담 분기 흐름을 만들어 보세요. 분기는 자유롭게 추가/삭제할 수 있어요.</div>
+
+  <div class="builder">
+    <div class="trigger-block">🚀 채널톡 버튼 클릭 (트리거)</div>
+    <div class="arrow-down"></div>
+    <div class="greeting-block">
+      <label>💬 인사말 + 응답 버튼</label>
+      <input type="text" data-key="greeting" placeholder="예: 어떤 도움이 필요하신가요? 아래 메뉴를 선택해 주세요.">
+    </div>
+
+    <div class="branches-container">
+      <div class="branches-grid" id="branchesGrid">
+        <!-- 동적으로 추가됨 -->
+      </div>
+      <button class="add-branch-btn" onclick="addBranch()">+ 분기 추가</button>
+    </div>
+
+    <div class="hours-config">
+      <div class="hc-row">
+        <label>⏰ 운영시간</label>
+        <div class="time-range">
+          <input type="time" data-key="hours_start" value="10:00">
+          <span>~</span>
+          <input type="time" data-key="hours_end" value="18:00">
+          <input type="text" data-key="hours_days" placeholder="요일 (예: 평일)" style="width:120px;">
+        </div>
+      </div>
+      <div class="hc-row">
+        <label>운영시간 응대</label>
+        <select data-key="open_action">
+          <option value="agent">👤 상담원 연결</option>
+          <option value="alf">🤖 ALF + 상담원</option>
+          <option value="bot">💬 챗봇 안내</option>
+        </select>
+      </div>
+      <div class="hc-row">
+        <label>미운영시간 응대</label>
+        <select data-key="close_action">
+          <option value="alf">🤖 ALF 자동 응대</option>
+          <option value="bot">💬 자동 안내 메시지</option>
+          <option value="form">📝 입력폼 (다음날 회신)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="self-check">
+    <h4>🤔 작성 후 셀프 체크</h4>
+    <label><input type="checkbox" data-key="check_1"> 각 분기마다 ‘누가/어떻게’ 응대할지 기능이 매칭되었나요?</label>
+    <label><input type="checkbox" data-key="check_2"> ALF로 처리할 문의가 1개 이상 있나요? (없다면 효율화 효과 ↓)</label>
+    <label><input type="checkbox" data-key="check_3"> 운영시간 외 응대 방식이 정해져 있나요?</label>
+  </div>
+</div>
+
+<!-- ============ Finish ============ -->
+<div class="page" style="background:#FAFAFA;">
+  <div style="background:var(--ink);color:#fff;padding:24px 28px;border-radius:8px;margin-bottom:24px;">
+    <div style="font-size:11px;font-weight:700;color:#fff;letter-spacing:2px;">CHANNEL TALK ONBOARDING WORKSHOP</div>
+    <h2 style="color:#fff;font-size:22px;margin-top:8px;">기획 완료 · 이제 채널톡으로 직접 만들어봐요!</h2>
+  </div>
+
+  <div class="section-label"><div class="bar"></div><h3>🚀 다음 단계 · 채널톡에서 직접 세팅하기</h3></div>
+  <div class="next-steps">
+    <div class="next-step"><div class="num">1</div><div class="title">상담 채널 통합</div><div class="desc">채널 설정에서<br>카톡·인스타·메일 연동</div></div>
+    <div class="next-step"><div class="num">2</div><div class="title">ALF 세팅</div><div class="desc">지식·규칙 등록<br>→ ALF 테스트</div></div>
+    <div class="next-step"><div class="num">3</div><div class="title">워크플로우 세팅</div><div class="desc">트리거 → 인사말 → 응답버튼<br>→ 각 단계 별 액션 설정</div></div>
+    <div class="next-step"><div class="num">4</div><div class="title">내부 테스트</div><div class="desc">팀원과 시나리오 테스트<br>응답 정확도·만족도 검증</div></div>
+  </div>
+
+  <div class="closing">
+    <h3><span class="emoji">🎉</span> 기획이 끝났다면 절반은 성공!</h3>
+    <p>오프라인 교육에서는 이 실습지를 바탕으로 <b>ALF와 워크플로우를 직접 세팅</b>해 볼 거예요. 기획 단계에서 큰 그림이 잘 그려져 있어야 세팅 속도가 빨라지고, 운영 중에 흐름을 바꾸기도 쉬워져요. 막히는 부분은 <b>'우리 팀에서 가장 자주 받는 문의 1개'</b>부터 시작해 보세요.</p>
+  </div>
+
+  <div class="section-label brand" style="margin-top:32px;"><div class="bar"></div><h3>✅ (보너스) 채널 설정 완료 체크리스트</h3></div>
+  <p class="checklist-intro">체크리스트를 순서대로 따라 오시면, 채널톡을 시작하기 위한 기본 설정을 쉽게 완료할 수 있어요. 각 항목의 <b>가이드 →</b> 버튼을 누르면 채널톡 공식 매뉴얼로 이동해요.</p>
+
+  <!-- ① 채널 프로필 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">① 채널 프로필</div>
+      <div class="cat-path">[채널 설정] → [일반 설정] → [채널 프로필] → [프로필]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="cp_logo"><div class="item-name">로고</div><div class="item-desc">고객이 보게 될 브랜드의 로고를 설정해 주세요.</div><a href="https://docs.channel.io/help/ko/articles/5deb0312" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="cp_cover"><div class="item-name">커버</div><div class="item-desc">브랜드를 표현하는 이미지를 설정해 보세요.</div><span class="guide-empty">—</span></div>
+      <div class="cat-item"><input type="checkbox" data-key="cp_name"><div class="item-name">채널명</div><div class="item-desc">채널의 이름을 설정해 주세요.</div><span class="guide-empty">—</span></div>
+      <div class="cat-item"><input type="checkbox" data-key="cp_notice"><div class="item-name">안내사항</div><div class="item-desc">안내사항은 대화방 상단에 보여집니다.</div><span class="guide-empty">—</span></div>
+      <div class="cat-item"><input type="checkbox" data-key="cp_bot"><div class="item-name">봇 프로필</div><div class="item-desc">대화를 시작할 때 기본 인사말을 건네는 프로필입니다.</div><span class="guide-empty">—</span></div>
+    </div>
+  </div>
+
+  <!-- ② 채널톡 버튼 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">② 채널톡 버튼</div>
+      <div class="cat-path">[채널 설정] → [버튼 설치 및 설정] → [웹 버튼 설정]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="bt_design"><div class="item-name">버튼 디자인</div><div class="item-desc">아이콘 또는 원하는 이미지로 커스터마이징할 수 있어요.</div><a href="https://docs.channel.io/help/ko/articles/94f34984-%EC%B1%84%EB%84%90%ED%86%A1-%EB%B2%84%ED%8A%BC-%EC%84%A4%EC%A0%95" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="bt_label"><div class="item-name">라벨 버튼</div><div class="item-desc">채팅 문의 버튼의 명시성을 높이는 긴 막대형 버튼입니다.</div><span class="guide-empty">—</span></div>
+      <div class="cat-item"><input type="checkbox" data-key="bt_pos"><div class="item-name">버튼 위치</div><div class="item-desc">PC/모바일 웹에서 보여지는 버튼 위치를 설정해 보세요.</div><span class="guide-empty">—</span></div>
+    </div>
+  </div>
+
+  <!-- ③ 상담 설정 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">③ 상담 설정</div>
+      <div class="cat-path">[채널 설정] → [상담] → [인사말 / 운영 / 매크로]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="chat_greet"><div class="item-name">인사말</div><div class="item-desc">대화를 시작할 때 고객에게 건네는 인사말입니다.</div><a href="https://docs.channel.io/help/ko/articles/d59dc516" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="chat_hours"><div class="item-name">운영시간</div><div class="item-desc">응대가 가능한 시간과 부재중 시간을 설정해 보세요.</div><a href="https://docs.channel.io/help/ko/articles/1e33dadc" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="chat_followup"><div class="item-name">팔로업 알림</div><div class="item-desc">상담 중 고객이 사이트를 떠나면 팔로업 알림을 보내요.</div><a href="https://docs.channel.io/help/ko/articles/3481edf8" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="chat_macro"><div class="item-name">매크로</div><div class="item-desc">자주 쓰는 답변을 매크로로 저장해 빠르게 응대하세요.</div><a href="https://docs.channel.io/help/ko/articles/a5905ef6" target="_blank" class="guide-link-sm">가이드 →</a></div>
+    </div>
+  </div>
+
+  <!-- ④ 외부 서비스 연동 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">④ 외부 서비스 연동</div>
+      <div class="cat-path">[채널 설정] → [연동] → [메신저 / 문자 / 이메일]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="ex_kakao"><div class="item-name">카카오톡</div><div class="item-desc">상담톡(채팅상담 통합), 알림톡(답변 알림/마케팅에 활용)</div><a href="https://docs.channel.io/help/ko/categories/04c16ecc-%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ex_insta"><div class="item-name">인스타그램</div><div class="item-desc">DM(채팅상담 통합), 피드(채널톡 홈에 게시물 공유)</div><a href="https://docs.channel.io/help/ko/categories/2b91e980-%EC%9D%B8%EC%8A%A4%ED%83%80%EA%B7%B8%EB%9E%A8" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ex_naver"><div class="item-name">네이버톡톡</div><div class="item-desc">메시지(채팅상담 통합), 네이버 로그인 연동</div><a href="https://docs.channel.io/help/ko/categories/21827f8f-%EB%84%A4%EC%9D%B4%EB%B2%84-%ED%86%A1%ED%86%A1" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ex_sms"><div class="item-name">문자</div><div class="item-desc">팔로업 알림 및 마케팅 메시지를 발송하기 위해 필요해요.</div><a href="https://docs.channel.io/help/ko/articles/ba987cea" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ex_email"><div class="item-name">이메일</div><div class="item-desc">고객이 보낸 메일도 채널톡에서 관리할 수 있어요.</div><a href="https://docs.channel.io/help/ko/categories/8d87987e-%EC%9D%B4%EB%A9%94%EC%9D%BC" target="_blank" class="guide-link-sm">가이드 →</a></div>
+    </div>
+  </div>
+
+  <!-- ⑤ 전화 연동 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">⑤ 전화 연동 <span style="font-weight:400;color:var(--ink-light);font-size:11.5px;">(필요 시)</span></div>
+      <div class="cat-path">[채널 설정] → [미트] → [전화]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="ph_biz"><div class="item-name">비즈니스 인증</div><div class="item-desc">전화 기능을 활용하려면 비즈니스 인증이 필요합니다.</div><a href="https://docs.channel.io/help/ko/articles/0b034717" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ph_num"><div class="item-name">번호 설정</div><div class="item-desc">070 신규 번호를 발급받거나, 기존 번호를 연결해 보세요.</div><a href="https://docs.channel.io/help/ko/articles/2b94d15c-%EB%B2%88%ED%98%B8-%EC%84%A4%EC%A0%95" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ph_set"><div class="item-name">전화 상담 설정</div><div class="item-desc">전화번호별로 대기 시간, 라우팅, 안내 음성을 설정하세요.</div><a href="https://docs.channel.io/help/ko/articles/2b94d15c-%EB%B2%88%ED%98%B8-%EC%84%A4%EC%A0%95" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="ph_mic"><div class="item-name">마이크 권한</div><div class="item-desc">전화 기능을 사용하기 위해 마이크 권한을 허용해 주세요. (OS·브라우저별 확인 필요)</div><a href="https://docs.channel.io/help/ko/articles/ebe39da2-%EC%82%AC%EC%A0%84-%EC%A4%80%EB%B9%84" target="_blank" class="guide-link-sm">가이드 →</a></div>
+    </div>
+  </div>
+
+  <!-- ⑥ 팀 설정 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">⑥ 팀 설정</div>
+      <div class="cat-path">[채널 설정] → [팀원 구성] → [매니저 / 팀]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="tm_invite"><div class="item-name">팀원 초대</div><div class="item-desc">채널에 함께할 팀원을 초대해 보세요.</div><a href="https://docs.channel.io/help/ko/articles/4de540d2" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="tm_team"><div class="item-name">팀 생성</div><div class="item-desc">팀을 만들어 멘션이나 상담 자동 배정에 활용할 수 있어요.</div><a href="https://docs.channel.io/help/ko/articles/a215cda0-%ED%8C%80%EC%9B%90-%EB%B0%8F-%EB%B4%87-%EC%84%A4%EC%A0%95" target="_blank" class="guide-link-sm">가이드 →</a></div>
+    </div>
+  </div>
+
+  <!-- ⑦ 매니저 설정 -->
+  <div class="checklist-category">
+    <div class="cat-header">
+      <div class="cat-title">⑦ 매니저 설정</div>
+      <div class="cat-path">[개인 설정] → [매니저 설정] → [프로필 / 알림]</div>
+    </div>
+    <div class="cat-items">
+      <div class="cat-item"><input type="checkbox" data-key="mg_profile"><div class="item-name">팀 멤버 프로필</div><div class="item-desc">챗봇이 아닌 진짜 사람과 대화하는 경험을 제공해 보세요.</div><a href="https://docs.channel.io/help/ko/articles/e7941ce4" target="_blank" class="guide-link-sm">가이드 →</a></div>
+      <div class="cat-item"><input type="checkbox" data-key="mg_noti"><div class="item-name">알림 설정</div><div class="item-desc">알림을 잘 설정하여 업무 효율을 높여 보세요.</div><a href="https://docs.channel.io/help/ko/articles/3fccba8f" target="_blank" class="guide-link-sm">가이드 →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 참고자료 PAGE ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">REFERENCE</div><h2>참고 자료</h2></div>
+  <div class="step-desc">ALF 규칙과 태스크를 바로 적용할 수 있는 예시 모음이에요. 우리 팀 운영 기준에 맞게 다듬어서 사용하세요.</div>
+
+  <!-- 1. 규칙 예시 -->
+  <div class="section-label brand"><div class="bar"></div><h3>📋 규칙 예시</h3></div>
+  <div class="ref-intro">
+    <div class="ref-path">설정 경로 ㆍ [AI] → [설정] → [규칙] → [+ 규칙 만들기]</div>
+  </div>
+
+  <!-- 규칙 예시 1 -->
+  <div class="ref-card">
+    <div class="ref-card-header">
+      <div class="header-left">
+        <span class="ref-num">RULE 01</span>
+        <span class="ref-title">정보 추가로 요청하기</span>
+      </div>
+      <button class="copy-btn" onclick="copyRule(this, 'rule-01')">📋 복사</button>
+    </div>
+    <div class="ref-desc">정확한 안내가 필요한 상황에 사용. 정보가 부족할 때 ALF가 재질문해서 의도를 명확화한 뒤 내부 지식으로 답변합니다.</div>
+    <div class="rule-copy-text" id="rule-01"><strong>[메인 규칙]</strong>
+고객의 문의 내용이 불명확하거나 핵심 정보가 부족한 경우 임의로 해석하지 않고, 추가 질문을 통해 의도를 명확히 파악한 뒤 응대합니다.
+
+<strong>[지시문]</strong>
+고객 질문이
+- 필요한 핵심 정보가 부족하거나 상황·요청 유형이 구체적이지 않은 경우
+- 어떤 상품에 대한 질문인지 모호한 경우
+- 단어나 키워드만으로 질문한 경우
+- 내부 지식에서 찾을 수 없는 용어나 표현이 포함된 경우
+임의로 해석하지 말고 어떤 점이 궁금한지 조금 더 구체적으로 설명해 달라고 요청합니다.
+
+<strong>[유의 사항]</strong>
+추가 질문 후에도 고객의 문의 의도가 모호한 경우 즉시 상담원에게 연결합니다.</div>
+  </div>
+
+  <!-- 규칙 예시 2 -->
+  <div class="ref-card">
+    <div class="ref-card-header">
+      <div class="header-left">
+        <span class="ref-num">RULE 02</span>
+        <span class="ref-title">ALF가 먼저 응대하기</span>
+      </div>
+      <button class="copy-btn" onclick="copyRule(this, 'rule-02')">📋 복사</button>
+    </div>
+    <div class="ref-desc">고객이 상담원 연결을 요청해도 먼저 ALF가 빠르게 도와줄 수 있도록 자연스럽게 안내. 강한 불만 표현 시에는 즉시 상담원 전환되도록 운영 기준에 맞게 조정하세요.</div>
+    <div class="rule-copy-text" id="rule-02"><strong>[메인 규칙]</strong>
+불필요한 상담원 연결을 막고 ALF가 먼저 응대합니다.
+
+<strong>[지시문]</strong>
+- 고객이 상담 시작과 동시에 상담원 연결을 요구하는 경우 (아래 예시 참고)
+  이 경우 즉시 상담원에게 연결하지 않고, 아래와 같은 기조로 응대합니다.
+  "저는 빠르고 친절한 AI 상담원 ALF입니다. 저와 상담하시면 대기시간 없이 궁금하신 점을 즉시 해결할 수 있어요. 우선 궁금한 내용을 조금 더 말씀해주시면 빠르게 확인해드리겠습니다."
+
+- 상담을 시작하는 시점이 아니라, 상담 도중에 상담원 연결을 요청할 경우
+  "앞서 안내드린 내용 중 추가 설명이 필요한 부분이 있나요? 말씀해주시면 제가 부연 설명 해드리겠습니다." 라는 맥락으로 답변합니다.
+
+<strong>[예시]</strong>
+- "상담원 연결해주세요"
+- "매니저 연결해주세요"
+- "직원/사람이랑 얘기하고 싶어요"
+- "AI 말고 상담원 주세요"
+
+<strong>[유의사항]</strong>
+고객이 화가 났거나 불편/불만을 강하게 표현하는 경우 즉시 상담원에게 연결합니다.</div>
+  </div>
+
+  <!-- 규칙 예시 3 -->
+  <div class="ref-card">
+    <div class="ref-card-header">
+      <div class="header-left">
+        <span class="ref-num">RULE 03</span>
+        <span class="ref-title">상담원 연결 조건</span>
+      </div>
+      <button class="copy-btn" onclick="copyRule(this, 'rule-03')">📋 복사</button>
+    </div>
+    <div class="ref-desc">ALF가 응대하기 어려운 문의나 상황을 미리 정해두고 적절한 타이밍에 상담원으로 자연스럽게 연결하는 규칙. 고객 불만이나 내부 지식 부재 등은 운영 기준에 맞게 조정하세요.</div>
+    <div class="rule-copy-text" id="rule-03"><strong>[메인 규칙]</strong>
+아래와 같은 경우, 예외적으로 바로 상담원 연결을 진행합니다.
+
+<strong>[지시문]</strong>
+- 고객이 불량, 환불 문의를 하는 경우 바로 상담원을 연결합니다.
+- 고객이 2번 이상 불편/불만을 강하게 표현하거나, 부정적인 감정이 강하게 드러나는 경우 즉시 상담원에게 연결합니다.
+- 내부 지식에서 정보를 찾을 수 없는 경우, "도와드리지 못해서 죄송하다"는 한계 안내 대신 "상담원과 연결해서 확인받으시겠어요?"라고 먼저 물어봅니다. 고객이 연결을 원한다고 답변하면 즉시 상담원에게 연결합니다.</div>
+  </div>
+
+  <!-- 2. 태스크 예시 -->
+  <div class="section-label brand" style="margin-top: 32px;"><div class="bar"></div><h3>⚙️ 태스크 예시</h3></div>
+  <div class="ref-intro">
+    <div class="ref-path">설정 경로 ㆍ [ALF] → [설정] → [태스크] → [+ 태스크 만들기] → 우측 상단 더보기 (⋮) → [가져오기] → 파일 선택 → 덮어쓰기</div>
+    <p>코드 작성 없이 활용할 수 있는 태스크 예시예요. 특정 문의가 인입되면 설정한 시나리오대로 ALF 응대가 자동 진행됩니다. JSON 파일을 다운받아 그대로 가져오기하면 바로 사용 가능해요.</p>
+  </div>
+
+  <!-- 태스크 예시 1 -->
+  <div class="ref-card">
+    <div class="ref-card-header">
+      <div class="header-left">
+        <span class="ref-num">TASK 01</span>
+        <span class="ref-title">쿠폰 요청하기</span>
+      </div>
+    </div>
+    <div class="ref-desc">고객이 쿠폰 요청 문의를 하는 경우, <b>VIP 고객인 경우에만</b> 쿠폰 코드를 자동으로 전달하는 태스크입니다.</div>
+    <div class="ref-task-step">
+      <div class="ref-task-step-label">① 태스크 예시 파일 다운받기</div>
+      <a href="https://docs.channel.io/channelclass/ko/articles/%EC%B1%84%EB%84%90%ED%86%A1-ALF-%EA%B8%B0%EC%B4%88-%EC%98%A8%EB%B3%B4%EB%94%A9-%EA%B5%90%EC%9C%A1-%EC%9E%90%EB%A3%8C-a09d7686#%EC%98%88%EC%8B%9C-1-%EC%BF%A0%ED%8F%B0-%EC%9A%94%EC%B2%AD%ED%95%98%EA%B8%B0" target="_blank" class="ref-task-file">
+        <span class="file-icon">JSON</span>
+        쿠폰 요청 시 쿠폰 코드 전달하기.json
+        <span class="file-size">5.7KB</span>
+      </a>
+    </div>
+    <div class="ref-task-step">
+      <div class="ref-task-step-label">② 태스크 설정 영상 가이드로 따라해보기</div>
+      <a href="https://docs.channel.io/channelcampus/ko/articles/%EC%8B%AC%ED%99%94-ALF%EA%B0%80-%EC%97%85%EB%AC%B4-%EC%B2%98%EB%A6%AC%EA%B9%8C%EC%A7%80%ED%95%98%EA%B2%8C-%ED%95%98%EA%B8%B0-b107b442#1-%EB%93%B1%EA%B8%89%EB%B3%84-%EB%8B%A4%EB%A5%B8-%ED%95%A0%EC%9D%B8-%EC%BF%A0%ED%8F%B0-%EC%A0%9C%EA%B3%B5%ED%95%98%EA%B8%B0-%EC%8B%AC%ED%99%94" target="_blank" class="ref-task-file">
+        <span class="file-icon" style="background: #FF6B5B;">🎥</span>
+        쿠폰 적용 방법 영상 가이드 보러가기
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 학습 자료 PAGE ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">LEARN</div><h2>학습 자료</h2></div>
+  <div class="step-desc">📖 이렇게 복습해 보세요! 교육 이후에도 혼자서 학습하고 성장할 수 있도록 채널톡이 제공하는 3가지 학습 공간을 안내해요.</div>
+
+  <div class="learn-intro">
+    <div class="li-icon">🎬</div>
+    <div class="li-text">
+      오늘 배운 내용은 <a href="https://docs.channel.io/channelcampus/ko/categories/%EC%B1%84%EB%84%90%ED%86%A1-%EA%B8%B0%EC%B4%88-%EC%98%A8%EB%B3%B4%EB%94%A9-%EA%B5%90%EC%9C%A1-867b69ac" target="_blank" style="color:var(--brand);text-decoration:underline;font-weight:700;">러닝 센터 ㆍ 기초 온보딩 교육</a> 파트에서 영상으로 다시 학습할 수 있어요.
+      <small>놓친 내용이나 더 깊이 보고 싶은 부분을 자유롭게 골라서 복습해 보세요.</small>
+    </div>
+  </div>
+
+  <div class="learn-grid">
+    <!-- 사용자 가이드 -->
+    <div class="learn-card">
+      <div class="learn-icon">📘</div>
+      <div class="learn-title">사용자 가이드</div>
+      <div class="learn-subtitle">Help Docs</div>
+      <div class="learn-desc">
+        <b>자주 묻는 질문 + 기능별 사용 팁</b><br>
+        설정 매뉴얼부터 운영 노하우까지, 막힐 때마다 가장 먼저 찾아볼 수 있는 공식 문서예요.
+      </div>
+      <a href="https://docs.channel.io/help/ko" target="_blank" class="learn-link">바로가기 →</a>
+    </div>
+
+    <!-- Channel Campus -->
+    <div class="learn-card">
+      <div class="learn-icon">🎥</div>
+      <div class="learn-title">Channel Campus</div>
+      <div class="learn-subtitle">365일 24시간 동영상 학습</div>
+      <div class="learn-desc">
+        <b>러닝 센터</b> ㆍ 강의 영상으로 차근차근 학습<br>
+        <b>트레이닝 센터</b> ㆍ 영상 가이드로 직접 적용
+      </div>
+      <a href="https://docs.channel.io/channelcampus/ko" target="_blank" class="learn-link">바로가기 →</a>
+    </div>
+
+    <!-- 블로그 -->
+    <div class="learn-card">
+      <div class="learn-icon">📝</div>
+      <div class="learn-title">블로그</div>
+      <div class="learn-subtitle">Customer Stories</div>
+      <div class="learn-desc">
+        <b>타사 성공 사례 모음</b><br>
+        다른 팀은 채널톡을 어떻게 활용하고 있는지, 실제 성과와 운영 인사이트를 모아 볼 수 있어요.
+      </div>
+      <a href="https://channel.io/ko/blog" target="_blank" class="learn-link">바로가기 →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 교육 만족도 조사 PAGE ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">FEEDBACK</div><h2>교육 만족도 조사</h2></div>
+  <div class="step-desc">오늘 교육은 어떠셨나요? 솔직한 의견을 들려주시면 더 나은 교육으로 발전할 수 있어요.</div>
+
+  <div class="benefit-grid" style="grid-template-columns: 1fr; max-width: 560px; margin: 18px auto 0;">
+    <div class="benefit-card" style="text-align: center; align-items: center;">
+      <div class="bc-icon" style="font-size: 44px;">📝</div>
+      <div class="bc-title">교육 만족도 조사 참여하기</div>
+      <div class="bc-subtitle">Feedback Survey</div>
+      <div class="bc-desc">
+        오늘 받은 교육에 대한 후기를 남겨주세요.<br>여러분의 피드백이 다음 교육에 직접 반영됩니다.
+      </div>
+      <ul class="bc-features" style="text-align: left; display: inline-block;">
+        <li>약 3분 소요</li>
+        <li>채널톡 워크플로우로 간편 응답</li>
+        <li>다음 교육 개선에 직접 반영</li>
+      </ul>
+      <a href="https://root.channel.io/workflows/827850" target="_blank" class="bc-button">
+        만족도 조사 참여하기 →
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 특별 혜택 PAGE ============ -->
+<div class="page">
+  <div class="step-header"><div class="step-badge">BENEFITS</div><h2>특별 혜택</h2></div>
+  <div class="step-desc">교육에 참여해 주신 분께 드리는 특별 혜택입니다. 꼭 챙겨 가세요!</div>
+
+  <div class="benefit-hero">
+    <div class="bh-tag">SPECIAL FOR YOU</div>
+    <h3><span class="gift">🎁</span> 온보딩 프로그램은 여기서 끝이 아닙니다!</h3>
+    <div class="bh-desc">교육 참여 고객사만 받을 수 있는 1:1 맞춤 온라인 미팅 혜택을 안내해 드려요.</div>
+  </div>
+
+  <div class="benefit-grid" style="grid-template-columns: 1fr; max-width: 640px; margin: 0 auto;">
+    <!-- 1:1 맞춤 온라인 미팅 -->
+    <div class="benefit-card">
+      <div class="bc-icon">🤝</div>
+      <div class="bc-title">1:1 맞춤 온라인 미팅</div>
+      <div class="bc-subtitle">Channel Talk 도입 고객사 전용</div>
+      <div class="bc-desc">
+        교육을 마치신 고객사를 위한 1:1 온라인 미팅이에요. 도입 과정에서 쌓이신 질문을 함께 정리하는 시간입니다.
+      </div>
+      <ul class="bc-features">
+        <li><b>1시간씩 총 2회</b> Zoom 화상 미팅 진행</li>
+        <li>1회차 → 2회차 나눠서 신청 가능</li>
+        <li>두 날짜를 한 번에 잡아도 OK</li>
+        <li>사전 응답지 작성 필수 (미팅 준비용)</li>
+      </ul>
+      <div class="bc-note">
+        ⚠️ <b>신청 유효기간</b> ㆍ 교육 참여일로부터 <b>한 달 이내</b>에 미팅 진행이 가능합니다. (2회 모두)
+      </div>
+      <a href="https://whattime.co.kr/channelcx/onboarding1on1" target="_blank" class="bc-button">
+        1:1 미팅 신청하기 →
+      </a>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const STORAGE_KEY = 'channeltalk_worksheet_v1';
+
+// ---- Inquiry table - generate 6 empty rows (예시 제외 1~6번 모두 공란) ----
+(function genInquiryRows() {
+  const tbody = document.getElementById('inquiryTbody');
+  for (let i = 1; i <= 6; i++) {
+    const tr = document.createElement('tr');
+    const autoPlaceholder = (i === 1) ? ' placeholder="예: ALF / 챗봇"' : '';
+    tr.innerHTML = `
+      <td><input type="text" data-key="iq_${i}_no"></td>
+      <td><input type="text" data-key="iq_${i}_type"></td>
+      <td><input type="text" data-key="iq_${i}_count"></td>
+      <td><input type="text" data-key="iq_${i}_diff"></td>
+      <td><input type="text" data-key="iq_${i}_prio"></td>
+      <td><input type="text" data-key="iq_${i}_auto"${autoPlaceholder}></td>
+    `;
+    tbody.appendChild(tr);
+  }
+})();
+
+// ---- Builder: Branches ----
+let branchCount = 0;
+const branchTypeColors = {
+  alf:   { label: '🤖 ALF (AI 응대)',     class: 'type-alf' },
+  bot:   { label: '💬 챗봇 (자동 안내)',  class: 'type-bot' },
+  form:  { label: '📝 입력폼 (정보 수집)', class: 'type-form' },
+  agent: { label: '👤 상담원 (팀 배정)',  class: 'type-agent' },
+};
+
+function updateBranchTreeCount() {
+  const grid = document.getElementById('branchesGrid');
+  const count = Math.max(grid.children.length, 1);
+  grid.style.setProperty('--n', count);
+}
+
+function addBranch(data) {
+  branchCount++;
+  const id = branchCount;
+  const grid = document.getElementById('branchesGrid');
+  const card = document.createElement('div');
+  card.className = 'branch-card type-alf';
+  card.dataset.branchId = id;
+  card.innerHTML = `
+    <button class="remove-btn" onclick="removeBranch(this)" title="삭제">×</button>
+    <input type="text" class="branch-name" data-key="br_${id}_name" placeholder="응답 버튼 (예: 상품 문의)">
+    <select data-key="br_${id}_type" onchange="updateBranchType(this)">
+      ${Object.entries(branchTypeColors).map(([v, o]) => `<option value="${v}">${o.label}</option>`).join('')}
+    </select>
+    <textarea data-key="br_${id}_action" placeholder="어떻게 처리할지 적어 보세요 (예: 상품 스펙·재고를 ALF가 자동 답변)"></textarea>
+  `;
+  grid.appendChild(card);
+  bindAutoSave(card);
+  if (data) {
+    if (data.name) card.querySelector('.branch-name').value = data.name;
+    if (data.type) {
+      const sel = card.querySelector('select');
+      sel.value = data.type;
+      updateBranchType(sel);
+    }
+    if (data.action) card.querySelector('textarea').value = data.action;
+  }
+  updateBranchTreeCount();
+}
+
+function removeBranch(btn) {
+  btn.closest('.branch-card').remove();
+  updateBranchTreeCount();
+  saveAll();
+}
+
+function updateBranchType(sel) {
+  const card = sel.closest('.branch-card');
+  card.classList.remove('type-alf','type-bot','type-form','type-agent');
+  card.classList.add(branchTypeColors[sel.value].class);
+  saveAll();
+}
+
+// Initial 3 branches
+addBranch();
+addBranch();
+addBranch();
+
+// ---- Auto-save ----
+function getAllInputs(root = document) {
+  return root.querySelectorAll('input[data-key], textarea[data-key], select[data-key]');
+}
+
+function bindAutoSave(root = document) {
+  getAllInputs(root).forEach(el => {
+    el.addEventListener('input', saveAll);
+    el.addEventListener('change', saveAll);
+  });
+}
+
+function saveAll() {
+  const data = { _branches: [] };
+  // Regular fields
+  document.querySelectorAll('input[data-key], textarea[data-key], select[data-key]').forEach(el => {
+    if (el.closest('.branch-card')) return; // skip branches, handled below
+    const key = el.dataset.key;
+    if (el.type === 'checkbox') data[key] = el.checked;
+    else data[key] = el.value;
+  });
+  // Branches
+  document.querySelectorAll('.branch-card').forEach(card => {
+    data._branches.push({
+      name: card.querySelector('.branch-name').value,
+      type: card.querySelector('select').value,
+      action: card.querySelector('textarea').value,
+    });
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  showSaveStatus();
+}
+
+let saveTimer;
+function showSaveStatus() {
+  const s = document.getElementById('saveStatus');
+  s.textContent = '저장 중...';
+  s.classList.remove('saved');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    s.textContent = '자동 저장됨 ✓';
+    s.classList.add('saved');
+  }, 400);
+}
+
+function loadAll() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    // Restore branches
+    if (data._branches && data._branches.length > 0) {
+      document.getElementById('branchesGrid').innerHTML = '';
+      branchCount = 0;
+      data._branches.forEach(b => addBranch(b));
+    }
+    // Restore regular fields
+    Object.entries(data).forEach(([key, val]) => {
+      if (key === '_branches') return;
+      const el = document.querySelector(`[data-key="${key}"]`);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!val;
+      else el.value = val ?? '';
+    });
+  } catch (e) {
+    console.warn('Failed to load:', e);
+  }
+}
+
+// ---- Export ----
+function exportJSON() {
+  const raw = localStorage.getItem(STORAGE_KEY) || '{}';
+  const data = JSON.parse(raw);
+  const today = new Date().toISOString().slice(0,10);
+  const company = data.company || 'untitled';
+  const filename = `채널톡_기획_${company}_${today}.json`;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON() { document.getElementById('importFile').click(); }
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      location.reload();
+    } catch (err) {
+      alert('JSON 파일을 읽을 수 없습니다.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAll() {
+  if (!confirm('모든 입력 내용이 삭제됩니다. 계속하시겠어요?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function printPage() { window.print(); }
+
+// 규칙 텍스트 복사
+function copyRule(btn, elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = '✓ 복사됨';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = original;
+    }, 1800);
+  }).catch(err => {
+    alert('복사에 실패했어요. 텍스트를 직접 선택해서 복사해 주세요.');
+  });
+}
+
+// ---- Init ----
+window.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  bindAutoSave();
+});
+</script>
+</body>
+</html>
