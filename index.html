@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>채널톡 고객센터 기획 실습지 (2026.06.01 최종)</title>
+<title>채널톡 고객센터 기획 실습지 (2026.06.30 최종)</title>
 <style>
   :root {
     --brand: #572DFF;
@@ -142,6 +142,15 @@
   .timetable tr.tt-lunch .tt-label {
     font-weight: 700; color: var(--brand-dark);
   }
+  .timetable tr.tt-lunch .lunch-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-left: 10px; padding: 3px 10px;
+    background: var(--brand); color: #fff;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px;
+    border-radius: 20px; text-decoration: none;
+    vertical-align: middle; transition: background 0.15s;
+  }
+  .timetable tr.tt-lunch .lunch-link:hover { background: var(--brand-dark); }
   /* Q&A / 클로징 special */
   .timetable tr.tt-qa td {
     background: #FAFAF7;
@@ -1037,12 +1046,14 @@
 
   /* ===== Bottom navigation ===== */
   .deck-nav {
-    position: sticky; bottom: 0; z-index: 80;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 80;
     display: flex; align-items: center; justify-content: center; gap: 14px;
     background: rgba(255,255,255,0.95); backdrop-filter: blur(6px);
     border-top: 1px solid var(--border);
     padding: 12px 20px;
   }
+  /* 하단 고정 바에 콘텐츠가 가리지 않도록 여백 확보 */
+  .deck { padding-bottom: 84px; }
   .deck-nav button {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 10px 22px; border-radius: 8px;
@@ -1064,6 +1075,52 @@
     .step-label { display: none; }
     .step-item { min-width: 40px; }
     .deck-nav button { padding: 9px 16px; font-size: 12.5px; }
+  }
+
+  /* ===== Mobile responsive (enhanced) ===== */
+  .table-scroll { width: 100%; }
+  @media (max-width: 720px) {
+    /* 다단 그리드 → 세로 스택 */
+    .learn-grid,
+    .benefit-grid { grid-template-columns: 1fr !important; }
+    .hours-config .hc-row { grid-template-columns: 1fr; gap: 6px; align-items: stretch; }
+    .hours-config .time-range { flex-wrap: wrap; }
+
+    /* 헤더 / 본문 여백·폰트 축소 */
+    .hero { padding: 22px 20px 20px; }
+    .hero h1 { font-size: 22px; }
+    .page { padding: 18px 18px; }
+    .page-intro { padding: 22px 20px; }
+    .page-intro h1 { font-size: 24px; }
+    .benefit-hero { padding: 20px 18px; }
+    .benefit-hero h3 { font-size: 18px; }
+    .step-header h2 { font-size: 20px; }
+    .closing { padding: 18px 18px; }
+    .toc-row { gap: 12px; padding: 14px 4px; }
+    .toc-t { font-size: 15px; }
+
+    /* 표: 가로 스크롤 처리 (열 찌그러짐 방지) */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-scroll .timetable,
+    .table-scroll .inquiry-table { min-width: 560px; }
+    .timetable th:first-child { width: 110px; }
+    .timetable th:nth-child(2) { width: 150px; }
+
+    /* 플로우 트리 간격 축소 */
+    .flow-branches { gap: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 20px; }
+    .page-intro h1 { font-size: 21px; }
+    .step-header h2 { font-size: 18px; }
+    .page,
+    .page-intro { padding: 16px 14px; }
+    .benefit-hero h3 { font-size: 16px; }
+    .table-scroll .timetable,
+    .table-scroll .inquiry-table { min-width: 480px; }
+    .deck-nav { gap: 8px; padding: 10px 12px; }
+    .deck-nav button { padding: 9px 12px; font-size: 12px; }
   }
 </style>
 </head>
@@ -1099,7 +1156,7 @@
 <text x="50" y="306" font-family="Inter, -apple-system, sans-serif" font-size="50" font-weight="800" letter-spacing="-0.5" fill="#FFFFFF">WORKSHOP</text>
 <rect x="50" y="330" width="80" height="3" fill="#FFFFFF" opacity="0.8"/>
 <text x="50" y="375" font-family="-apple-system, 'Apple SD Gothic Neo', 'Pretendard', sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" opacity="0.92">채널톡으로 고객센터 기획하기</text>
-<text x="50" y="478" font-family="-apple-system, 'Apple SD Gothic Neo', 'Pretendard', sans-serif" font-size="13" font-weight="600" fill="#8A8A8A" letter-spacing="0.5">CX팀 온보딩 워크숍 · 고객센터 기획 실습지 · 2026.06.01 최종</text>
+<text x="50" y="478" font-family="-apple-system, 'Apple SD Gothic Neo', 'Pretendard', sans-serif" font-size="13" font-weight="600" fill="#8A8A8A" letter-spacing="0.5">CX팀 온보딩 워크숍 · 고객센터 기획 실습지 · 2026.06.30 최종</text>
 </svg>
 </div>
 
@@ -1112,7 +1169,6 @@
     <div class="toc-row"><span class="toc-no">02</span><div class="toc-body"><span class="toc-t">고객센터 기획 실습</span><span class="toc-sub">STEP 1~4 · 채널 통합부터 우리 팀 상담 흐름 설계까지</span></div></div>
     <div class="toc-row"><span class="toc-no">03</span><div class="toc-body"><span class="toc-t">참고 자료</span><span class="toc-sub">규칙 · 태스크 예시</span></div></div>
     <div class="toc-row"><span class="toc-no">04</span><div class="toc-body"><span class="toc-t">학습 자료</span></div></div>
-    <div class="toc-row"><span class="toc-no">05</span><div class="toc-body"><span class="toc-t">특별 혜택</span></div></div>
   </div>
 </div>
 
@@ -1120,6 +1176,7 @@
 <div class="page">
   <div class="step-header"><div class="step-badge">SCHEDULE</div><h2>교육 타임테이블</h2></div>
 
+  <div class="table-scroll">
   <table class="timetable" style="margin-top:20px;">
     <thead>
       <tr>
@@ -1179,11 +1236,11 @@
 
       <tr class="tt-lunch">
         <td class="tt-time">12:00 - 13:00</td>
-        <td class="tt-label" colspan="2">🍱 점심 시간 (60분)</td>
+        <td class="tt-label" colspan="2">🍱 점심 시간 (60분) <a href="https://app.notion.com/p/channelio/38774b55ec7c81d1963fc2206d306a98?source=copy_link" target="_blank" rel="noopener" class="lunch-link">🔗 역삼역 식당·카페 리스트</a></td>
       </tr>
 
       <tr>
-        <td class="tt-time">13:00 - 14:10<span class="tt-dur">70분</span></td>
+        <td class="tt-time">13:00 - 14:00<span class="tt-dur">60분</span></td>
         <td class="tt-name">
           <span class="tt-part-label">Part 2</span>
           <span class="tt-part-title">ALF</span>
@@ -1199,12 +1256,12 @@
       </tr>
 
       <tr class="tt-break">
-        <td class="tt-time">14:10 - 14:20</td>
+        <td class="tt-time">14:00 - 14:10</td>
         <td class="tt-label" colspan="2">☕ 쉬는 시간 (10분)</td>
       </tr>
 
       <tr>
-        <td class="tt-time">14:20 - 15:30<span class="tt-dur">70분</span></td>
+        <td class="tt-time">14:10 - 15:30<span class="tt-dur">80분</span></td>
         <td class="tt-name">
           <span class="tt-part-label">Part 3</span>
           <span class="tt-part-title">워크플로우</span>
@@ -1240,8 +1297,13 @@
         </td>
       </tr>
 
+      <tr class="tt-break">
+        <td class="tt-time">16:15 - 16:20</td>
+        <td class="tt-label" colspan="2">☕ 쉬는 시간 (5분)</td>
+      </tr>
+
       <tr>
-        <td class="tt-time">16:15 - 17:00<span class="tt-dur">45분</span></td>
+        <td class="tt-time">16:20 - 17:00<span class="tt-dur">40분</span></td>
         <td class="tt-name">
           <span class="tt-part-label">Part 4</span>
           <span class="tt-part-title">분석, 마케팅</span>
@@ -1262,11 +1324,12 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </div>
 
 <!-- ============ HERO ============ -->
 <div class="hero">
-  <div class="version">최종 · 2026.06.01</div>
+  <div class="version">최종 · 2026.06.30</div>
   <div class="label">CHANNEL TALK ONBOARDING WORKSHOP</div>
   <h1>채널톡으로 고객 센터 기획하기</h1>
 </div>
@@ -1335,6 +1398,7 @@
   <div class="step-desc">우리 서비스에서 자주 받는 문의를 작성하고, 그 중 가장 효율화하고 싶은 문의 3~5개를 선정해 주세요.</div>
 
   <div class="section-label"><div class="bar"></div><h3>💬 우리 팀이 받는 문의 유형 적어보기</h3></div>
+  <div class="table-scroll">
   <table class="inquiry-table">
     <thead>
       <tr>
@@ -1358,6 +1422,7 @@
       <!-- 빈 행 6개 -->
     </tbody>
   </table>
+  </div>
 
   <div class="section-label brand"><div class="bar"></div><h3>🏆 효율화 우선 순위 · 채널톡으로 가장 먼저 자동화할 문의 3개</h3></div>
   <div class="priority-cards">
@@ -1896,42 +1961,6 @@
   </div>
 </div>
 
-<!-- ============ 특별 혜택 PAGE ============ -->
-<div class="page">
-  <div class="step-header"><div class="step-badge">BENEFITS</div><h2>특별 혜택</h2></div>
-  <div class="step-desc">교육에 참여해 주신 분께 드리는 특별 혜택입니다. 꼭 챙겨 가세요!</div>
-
-  <div class="benefit-hero">
-    <div class="bh-tag">SPECIAL FOR YOU</div>
-    <h3><span class="gift">🎁</span> 온보딩 프로그램은 여기서 끝이 아닙니다!</h3>
-    <div class="bh-desc">교육 참여 고객사만 받을 수 있는 1:1 맞춤 온라인 미팅 혜택을 안내해 드려요.</div>
-  </div>
-
-  <div class="benefit-grid" style="grid-template-columns: 1fr; max-width: 640px; margin: 0 auto;">
-    <!-- 1:1 맞춤 온라인 미팅 -->
-    <div class="benefit-card">
-      <div class="bc-icon">🤝</div>
-      <div class="bc-title">1:1 맞춤 온라인 미팅</div>
-      <div class="bc-subtitle">Channel Talk 도입 고객사 전용</div>
-      <div class="bc-desc">
-        교육을 마치신 고객사를 위한 1:1 온라인 미팅이에요. 도입 과정에서 쌓이신 질문을 함께 정리하는 시간입니다.
-      </div>
-      <ul class="bc-features">
-        <li><b>1시간씩 총 2회</b> Zoom 화상 미팅 진행</li>
-        <li>1회차 → 2회차 나눠서 신청 가능</li>
-        <li>두 날짜를 한 번에 잡아도 OK</li>
-        <li>사전 응답지 작성 필수 (미팅 준비용)</li>
-      </ul>
-      <div class="bc-note">
-        ⚠️ <b>신청 유효기간</b> ㆍ 교육 참여일로부터 <b>한 달 이내</b>에 미팅 진행이 가능합니다. (2회 모두)
-      </div>
-      <a href="https://whattime.co.kr/channelcx/onboarding1on1" target="_blank" class="bc-button">
-        1:1 미팅 신청하기 →
-      </a>
-    </div>
-  </div>
-</div>
-
 </div><!-- /container -->
 
 <script>
@@ -2159,7 +2188,6 @@ const SLIDE_LABELS = [
   { num: '',       title: '참고 자료' },
   { num: '',       title: '학습 자료' },
   { num: '',       title: '만족도' },
-  { num: '',       title: '특별 혜택' },
 ];
 
 let slides = [];
